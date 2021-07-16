@@ -1,0 +1,7 @@
+form .form-group {
+    text-align: left;
+}
+
+form .form-row:last-child .form-group {
+    text-align: right;
+}

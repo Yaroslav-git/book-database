@@ -1,0 +1,36 @@
+.user-btn-gr .btn,
+.user-btn-gr .dropdown-item {
+     color: rgba(255,255,255,.5)!important;
+     background-color: #343a40 !important;
+}
+
+.user-btn-gr .dropdown-menu {
+    min-width: 75px !important;
+    right: 0 !important;
+    left: auto !important;
+    background-color: #343a40!important;
+}
+
+.user-btn-gr .dropdown-menu-closed {
+    display: none !important;
+}
+
+
+.user-btn-gr .dropdown-menu-open {
+    display: block !important;
+}
+
+.user-btn-gr button.user-name {
+    cursor: default !important;
+}
+
+.dropdown-toggle-up::after {
+    display: inline-block;
+    /*margin-left: 0.255em;*/
+    vertical-align: 0.255em;
+    content: "";
+    border-top: 0;
+    border-right: 0.3em solid transparent;
+    border-bottom: 0.3em solid;
+    border-left: 0.3em solid transparent;
+}

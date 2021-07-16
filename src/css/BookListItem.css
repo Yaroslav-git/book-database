@@ -1,0 +1,126 @@
+.book-list-item {
+    margin-top: 10px;
+}
+
+.book-edit-control label,
+.authentication-control label {
+    display: block;
+}
+
+.read-status-container {
+    padding-left: 5px;
+    padding-right: 5px;
+}
+
+.read-status-container .alert {
+    padding: 0.25rem !important;
+}
+
+.assessment-container {
+    padding: 0;
+}
+
+.album {
+    background-color: #777777;
+    padding-left: 30px;
+    padding-right: 30px;
+}
+
+.card-header {
+    padding: 0.25rem;
+    height: 3.5rem;
+}
+
+.card-title {
+    margin-bottom: 0.5rem;
+}
+
+h5.single-title {
+    margin-top: 0.5rem;
+}
+
+.card-img-container{
+    padding-top: 0.25rem;
+}
+
+.card-img-container.wrapped-content {
+    height: 27rem;
+    overflow: hidden;
+    position: relative;
+}
+
+.author-name-panel {
+    height: 2.5rem;
+}
+
+.author-name-panel h6.card-subtitle:last-child {
+    margin-top: 0.05rem;
+}
+
+.card-body {
+    background-color: white;
+}
+
+.card-footer {
+    background-color: #f7f7f7;
+}
+
+.card-footer .alert {
+    margin-bottom: 0px;
+    padding: 0.25rem 1.25rem;
+}
+/*
+.card-body p.card-text.wrapped-content {
+    height: 1.75rem;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+p.card-text {
+    position: relative;
+}
+*/
+.card-text-container.wrapped-content {
+    height: 1.75rem;
+    word-wrap: break-word;
+    overflow: hidden;
+}
+
+.card-text-container {
+    position: relative;
+}
+
+.card-img-wrapper {
+    width: fit-content;
+    margin: auto;
+    position: relative;
+}
+
+.card-img-container.wrapped-content .card-img-wrapper {
+    max-height: 27rem;
+}
+
+.img-size-toggle-icon {
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+    color: darkgray;
+    font-size: 1.25rem;
+    cursor: pointer;
+}
+
+.text-size-toggle-icon {
+    position: absolute;
+    right: 1px;
+    bottom: 1px;
+    color: darkgray;
+    font-size: 1.5rem;
+    cursor: pointer;
+    background-color: rgba(255,255,255,0.75);
+    z-index: 1;
+}
+
+.user-comment-panel {
+    margin: 0.5rem auto;
+    padding: 4px 8px;
+}
