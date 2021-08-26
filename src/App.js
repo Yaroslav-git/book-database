@@ -19,7 +19,7 @@ class App extends React.Component {
             editedBookId: -1,
             authenticationError: ''
         }
-    }
+    };
 
     componentDidMount() {
 
@@ -34,29 +34,75 @@ class App extends React.Component {
                 });
             }
         }
-    }
+    };
+
+    handleViewChange = (view) => {
+
+        this.setState({
+            activeView: view
+        });
+    };
+
+    enableAuthPage = (error) => {
+        this.setState({
+            loggedIn: false,
+            activeView: 'authentication',
+            authenticationError: error
+        });
+    };
+
+    enableEditBookForm = (bookId) => {
+        this.setState({
+            editedBookId: bookId,
+            activeView: 'edit'
+        });
+    };
+
+    backendProvider = (data) => {
+
+        if ( data.sessionId === undefined )
+            data.sessionId = this.state.sessionId;
+
+        return new Promise( (resolve, reject) => {
+            fetch(
+                this.state.backendUrl,
+                {
+                    method: 'POST',
+                    mode: 'cors',
+                    credentials: "include",
+                    body: JSON.stringify(data)
+                }
+            )   .then(
+                response => response.json(),
+                error => reject( new Error('fail' + (data.action ? ' ['+data.action+']' : '') +': ' + error.message) )
+            )
+                .then(
+                    responseObj => {
+                        if ( responseObj.status === 'error' ) {
+                            if ( responseObj.message === 'authentication required' )
+                                this.enableAuthPage('');
+                            reject(new Error('fail' + (data.action ? ' [' + data.action + ']' : '') + ': ' + responseObj.message));
+                        }
+                        else
+                            resolve( responseObj );
+                    }
+                );
+        });
+
+    };
 
     signIn = (login, password, sessionId) => {
 
-        let bodyData = {
+        let requestData = {
             action: 'authentication',
             login: login,
             password: password,
             sessionId: sessionId
         };
 
-        fetch(  this.state.backendUrl,
-                {
-                    method: 'POST',
-                    mode: 'cors',
-                    credentials: "include",
-                    body: JSON.stringify(bodyData)
-                }
-            )
-            .then(response => response.json())
-            .then(response => {
-
-                if ( response['status'] === 'success' ) {
+        this.backendProvider(requestData).then(
+            response => {
+                if ( response.status === 'success' ) {
                     this.setState({
                         loggedIn: true,
                         userName: response.data.userName,
@@ -66,34 +112,25 @@ class App extends React.Component {
                     });
                     window.localStorage.setItem('sessionId', response.data.sessionId);
                 }
-
-                if ( response['status'] === 'error' ) {
-                    this.setState({
-                        loggedIn: false,
-                        activeView: 'authentication',
-                        authenticationError: (response.message === 'authentication required' ? '' : response.message)
-                    });
-                }
-            });
+            },
+            error => {
+                this.setState({
+                    loggedIn: false,
+                    activeView: 'authentication',
+                    authenticationError: (error.message.includes('authentication required') ? '' : error.message)
+                });
+            }
+        );
     };
 
     signOut = () => {
-        let bodyData = {
+
+        let requestData = {
             action: 'sign_out',
-            sessionId: this.state.sessionId
         };
 
-        fetch(  this.state.backendUrl,
-            {
-                method: 'POST',
-                mode: 'cors',
-                credentials: "include",
-                body: JSON.stringify(bodyData)
-            }
-        )
-            .then(response => response.json())
-            .then(response => {
-
+        this.backendProvider(requestData).then(
+            response => {
                 if ( response.status === 'success' ) {
                     this.setState({
                         loggedIn: false,
@@ -104,34 +141,12 @@ class App extends React.Component {
                     });
                     window.localStorage.removeItem('sessionId');
                 }
-
-                if ( response.status === 'error' ) {
-                    alert(response.message);
-                }
-            });
-    }
-
-    handleViewChange = (view) => {
-
-        this.setState({
-            activeView: view
-        });
-    }
-
-    enableAuthPage = (error) => {
-        this.setState({
-            loggedIn: false,
-            activeView: 'authentication',
-            authenticationError: error
-        });
-    }
-
-    enableEditBookForm = (bookId) => {
-      this.setState({
-            editedBookId: bookId,
-            activeView: 'edit'
-        });
-    }
+            },
+            error => {
+                alert(error.message);
+            }
+        );
+    };
 
 
     render() {
@@ -143,28 +158,21 @@ class App extends React.Component {
                 break;
             case 'list':
                 mainContent =   <BookList
-                                    removeHandler={this.removeBookFromList}
                                     editHandler={this.enableEditBookForm}
-                                    sessionId={this.state.sessionId}
-                                    backendUrl={this.state.backendUrl}
-                                    authRequestHandler={this.enableAuthPage}
+                                    backendProvider={this.backendProvider}
                                 />;
                 break;
             case 'add':
                 mainContent =   <BookEditForm
                                     action='create book'
-                                    sessionId={this.state.sessionId}
-                                    backendUrl={this.state.backendUrl}
-                                    authRequestHandler={this.enableAuthPage}
+                                    backendProvider={this.backendProvider}
                                 />;
                 break;
             case 'edit':
                 mainContent =   <BookEditForm
                                     action='edit book'
                                     bookId={this.state.editedBookId}
-                                    sessionId={this.state.sessionId}
-                                    backendUrl={this.state.backendUrl}
-                                    authRequestHandler={this.enableAuthPage}
+                                    backendProvider={this.backendProvider}
                                 />;
                 break;
             case 'authentication':

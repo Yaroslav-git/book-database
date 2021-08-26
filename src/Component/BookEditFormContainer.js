@@ -13,7 +13,7 @@ class BookEditForm extends React.Component {
 
     componentDidMount() {
         if ( this.props.bookId ) {
-            this.fetchBook(this.props.bookId);
+            this.getBook(this.props.bookId);
         }
         else
             this.setEmptyBookData();
@@ -41,108 +41,81 @@ class BookEditForm extends React.Component {
                 }
             }
         );
-    }
+    };
 
-    fetchBook = (bookId) => {
-        let bodyData = {
+    getBook = (bookId) => {
+
+        let requestData = {
             action: 'get_book',
-            bookId: bookId,
-            sessionId: this.props.sessionId
+            bookId: bookId
         };
 
-        fetch( this.props.backendUrl ,
-            {
-                method: 'POST',
-                mode: 'cors',
-                credentials: "include",
-                body: JSON.stringify(bodyData)
-            }
-        )
-            .then(response => response.json())
-            .then(response => {
+        this.props.backendProvider(requestData).then(
+            response => {
                 if (response.status === 'success') {
                     this.setState({
                         bookId: bookId,
                         book: response.data
                     });
                 }
-                if ( response.status === 'error' ) {
-                    if ( response.message === 'authentication required' )
-                        this.props.authRequestHandler(response.message);
-                    else
-                        alert("Ошибка: "+response.message);
-                }
-            });
-    }
+            },
+            error => {
+                if ( error.message.includes('authentication required') )
+                    alert("Требуется авторизация");
+                else
+                    alert("Ошибка: "+error.message);
+            }
+        );
+
+    };
 
     createNewBook = () => {
-        let bodyData = {
+
+        let requestData = {
             action: 'add_book',
-            book: this.state.book,
-            sessionId: this.props.sessionId
+            book: this.state.book
         };
 
-        fetch(  this.props.backendUrl,
-            {
-                method: 'POST',
-                mode: 'cors',
-                credentials: "include",
-                body: JSON.stringify(bodyData)
-            }
-        )
-            .then(response => response.json())
-            .then(response => {
-
+        this.props.backendProvider(requestData).then(
+            response => {
                 if ( response.status === 'success' ) {
                     this.setState({
                         editedBookId: response.data.bookId
                     });
                     alert("Книга успешно добавлена");
                 }
-
-                if ( response.status === 'error' ) {
-                    if ( response.message === 'authentication required' )
-                        this.props.authRequestHandler(response['message']);
-                    else
-                        alert("Ошибка: "+response.message);
-                }
-            });
-    }
+            },
+            error => {
+                if ( error.message.includes('authentication required') )
+                    alert("Требуется авторизация");
+                else
+                    alert("Ошибка: "+error.message);
+            }
+        );
+    };
 
     updateBook = () => {
-        let bodyData = {
+
+        let requestData = {
             action: 'update_book',
             bookId: this.state.bookId,
-            book: this.state.book,
-            sessionId: this.props.sessionId
+            book: this.state.book
         };
 
-        fetch(  this.props.backendUrl,
-            {
-                method: 'POST',
-                mode: 'cors',
-                credentials: "include",
-                body: JSON.stringify(bodyData)
-            }
-        )
-            .then(response => response.json())
-            .then(response => {
-
+        this.props.backendProvider(requestData).then(
+            response => {
                 if ( response.status === 'success' ) {
-                    /*this.setState({
-                        editedBookId: response.data.bookId
-                    });*/
                     alert("Книга успешно изменена");
                 }
-
-                if ( response.status === 'error' ) {
-                    if ( response.message === 'authentication required' )
-                        this.props.authRequestHandler(response['message']);
-                    else
-                        alert("Ошибка: "+response.message);
-                }
-            });
-    }
+            },
+            error => {
+                if ( error.message.includes('authentication required') )
+                    alert("Требуется авторизация");
+                else
+                    alert("Ошибка: "+error.message);
+            }
+        );
+    };
 
     saveChanges = (bookData) => {
 
@@ -169,7 +142,6 @@ class BookEditForm extends React.Component {
         return(
             <BookEditFormComponent
                 book={this.state.book}
-                /*handleChange={this.handleChange}*/
                 handleSubmit={this.saveChanges}
             />
         );

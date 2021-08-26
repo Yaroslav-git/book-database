@@ -106,21 +106,21 @@ class BookEditFormComponent extends React.Component {
                             <div className="form-group col-md-5 col-lg-5">
                                 <label>Название книги
                                     <input type="text" className="form-control" name="titleRus"
-                                           value={this.state.titleRus} onChange={this.handleChange}
+                                           value={this.state.titleRus ? this.state.titleRus : ''} onChange={this.handleChange}
                                            placeholder="Назване книги на русском"/>
                                 </label>
                             </div>
                             <div className="form-group col-md-5 col-lg-5">
                                 <label>Название в оригинале
                                     <input type="text" className="form-control" name="titleOrig"
-                                           value={this.state.titleOrig} onChange={this.handleChange}
+                                           value={this.state.titleOrig ? this.state.titleOrig : ''} onChange={this.handleChange}
                                            placeholder="Original book title"/>
                                 </label>
                             </div>
                             <div className="form-group col-md-2 col-lg-2">
                                 <label>Год публикации
                                     <input type="number" className="form-control" name="publicationYear"
-                                           value={this.state.publicationYear} onChange={this.handleChange}
+                                           value={this.state.publicationYear ? this.state.publicationYear : ''} onChange={this.handleChange}
                                            placeholder=""/>
                                 </label>
                             </div>
@@ -130,21 +130,21 @@ class BookEditFormComponent extends React.Component {
                             <div className="form-group col-md-5 col-lg-5">
                                 <label>Имя автора
                                     <input type="text" className="form-control" name="authorNameRus"
-                                           value={this.state.authorNameRus} onChange={this.handleChange}
+                                           value={this.state.authorNameRus ? this.state.authorNameRus : ''} onChange={this.handleChange}
                                            placeholder="Имя автора на русском"/>
                                 </label>
                             </div>
                             <div className="form-group col-md-4 col-lg-4">
                                 <label>Имя автора в оригинале
                                     <input type="text" className="form-control" name="authorNameOrig"
-                                           value={this.state.authorNameOrig} onChange={this.handleChange}
+                                           value={this.state.authorNameOrig ? this.state.authorNameOrig : ''} onChange={this.handleChange}
                                            placeholder="Author name"/>
                                 </label>
                             </div>
                             <div className="form-group col-md-3 col-lg-3">
                                 <label>Ссылка на обложку
                                     <input type="url" className="form-control" name="coverImageLink"
-                                           value={this.state.coverImageLink} onChange={this.handleChange}
+                                           value={this.state.coverImageLink ? this.state.coverImageLink : ''} onChange={this.handleChange}
                                            placeholder="Image URL"/>
                                 </label>
                             </div>
@@ -154,7 +154,7 @@ class BookEditFormComponent extends React.Component {
                             <div className="form-group col-md-6 col-lg-6">
                                 <label>Аннотация
                                     <textarea rows="3" className="form-control" id="bookAnnotation" name="annotation"
-                                              value={this.state.annotation} onChange={this.handleChange}
+                                              value={this.state.annotation ? this.state.annotation : ''} onChange={this.handleChange}
                                               placeholder="Краткое описание книги, которое дает читателю представление о произведении"/>
                                 </label>
                             </div>

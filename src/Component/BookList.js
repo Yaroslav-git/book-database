@@ -12,73 +12,56 @@ class BookList extends React.Component {
     }
 
     componentDidMount(){
-        this.fetchBookList();
+        this.getBookList();
     }
 
-    fetchBookList = () => {
+    getBookList = () => {
 
-        let bodyData = {
+        let requestData = {
             action: 'get_book_list',
             sessionId: this.props.sessionId
         };
 
-        fetch( this.props.backendUrl ,
-            {
-                method: 'POST',
-                mode: 'cors',
-                credentials: "include",
-                body: JSON.stringify(bodyData)
-            }
-        )
-            .then(response => response.json())
-            .then(response => {
-                if ( response.status === 'success' ) {
+        this.props.backendProvider(requestData).then(
+            response => {
+                if (response.status === 'success') {
                     this.setState({
                         userBookList: response.data,
                     });
                 }
-                if ( response.status === 'error' ) {
-                    if ( response.message === 'authentication required' )
-                        this.props.authRequestHandler(response.message);
-                    else
-                        alert(response.message);
-                }
-            });
-    }
+            },
+            error => {
+                if ( error.message.includes('authentication required') )
+                    alert("Требуется авторизация");
+                else
+                    alert("Ошибка: "+error.message);
+            }
+        );
+    };
 
     removeBook = (bookId) => {
 
-        let bodyData = {
+        let requestData = {
             action: 'remove_book',
             bookId: bookId,
             sessionId: this.props.sessionId
         };
 
-        fetch(  this.props.backendUrl,
-            {
-                method: 'POST',
-                mode: 'cors',
-                credentials: "include",
-                body: JSON.stringify(bodyData)
-            }
-        )
-            .then(response => response.json())
-            .then(response => {
-
-                if ( response.status === 'success' ) {
+        this.props.backendProvider(requestData).then(
+            response => {
+                if (response.status === 'success') {
                     alert("Книга удалена");
-                    //this.refreshBookList();
-                    this.fetchBookList();
+                    this.getBookList();
                 }
-
-                if ( response.status === 'error' ) {
-                    if ( response.message === 'authentication required' )
-                        this.props.authRequestHandler(response.message);
-                    else
-                        alert("Ошибка: "+response.message);
-                }
-            });
-    }
+            },
+            error => {
+                if ( error.message.includes('authentication required') )
+                    alert("Требуется авторизация");
+                else
+                    alert("Ошибка: "+error.message);
+            }
+        );
+    };
 
     switchViewType = (event) => {
         let {tagName, classList} = event.target;
@@ -104,7 +87,6 @@ class BookList extends React.Component {
             bookListItems = this.state.userBookList.map(item => <BookListItem
                 key={item.id}
                 data={item}
-                //removeHandler={this.props.removeHandler}
                 removeHandler={this.removeBook}
                 editHandler={this.props.editHandler}
                 switchViewType={this.switchViewType}
