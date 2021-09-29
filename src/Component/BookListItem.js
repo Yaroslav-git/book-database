@@ -59,13 +59,7 @@ function BookListItem({   data:{assessment},
     let commentPanel = comment  ? <div className="alert alert-secondary user-comment-panel"
                                        role="alert" aria-label='комментарий'><i>{comment}</i></div>
                                 : '';
-/*
-<p className="card-text wrapped-content">
-{annotation}
-{commentPanel}
-<i className="far fa-caret-square-down text-size-toggle-icon" onClick={switchViewType}></i>
-</p>
-*/
+
     return (
         <div className="col-sm-6 col-md-4 col-lg-4 book-list-item">
 
