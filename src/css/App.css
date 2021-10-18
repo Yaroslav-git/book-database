@@ -7,6 +7,11 @@
   text-align: center;
 }
 
+.album {
+  background-color: #edf2f9 !important;
+  padding-top: 1rem !important;
+}
+
 .App-logo {
   animation: App-logo-spin infinite 20s linear;
   height: 40vmin;
@@ -38,7 +43,15 @@
 }
 
 body {
-  padding-top: 5rem;
-  padding-bottom: 5rem;
+  /*padding-top: 5rem;
+  padding-bottom: 5rem;*/
+  padding-top: 3rem;
+  padding-bottom: 0 !important;
   color: #5a5a5a;
+}
+
+.book-edit-control,
+.authentication-control,
+.home-page {
+  padding-top: 2rem;
 }

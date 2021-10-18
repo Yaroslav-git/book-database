@@ -1,62 +1,48 @@
-import React from 'react'
+/**
+ * Компонент для редактирования книги - создания новой или изменения существующей.
+ * В данном компоненте реализуется логика, в компоненте BookEditFormComponent - рендер формы редактирования.
+ */
+import React, {useState, useEffect} from 'react'
+import {useParams, useLocation, useHistory} from "react-router-dom"
 import BookEditFormComponent from './BookEditFormComponent'
 
-class BookEditForm extends React.Component {
+const BookEditForm = (props) => {
 
-    constructor() {
-        super();
-        this.state = {
-            bookId: undefined,
-            book: {}
-        }
-    }
+    let history = useHistory();
+    let {bookId: paramsBookId} = useParams();
+    let {pathname} = useLocation();
+    let [bookData, setBookData] = useState({});
 
-    componentDidMount() {
-        if ( this.props.bookId ) {
-            this.getBook(this.props.bookId);
+    /**
+     * Если через url передан идентификатор книги (bookId),
+     * то через запрос к бэкэнду происходит получение данных книги.
+     */
+    useEffect(() => {
+        if (paramsBookId !== undefined) {
+            getBook(paramsBookId);
         }
         else
-            this.setEmptyBookData();
-    }
+            setBookData({});
+    }, [paramsBookId]);
 
-    componentDidUpdate(prevProps) {
-        if (this.props.action !== prevProps.action)
-            this.setEmptyBookData();
-    }
-
-    setEmptyBookData = () => {
-        this.setState({
-                bookId: undefined,
-                book: {
-                    titleOrig: "",
-                    titleRus: "",
-                    authorNameOrig: "",
-                    authorNameRus: "",
-                    publicationYear: "",
-                    coverImageLink: "",
-                    annotation: "",
-                    comment: "",
-                    readStatus: "",
-                    assessment: ""
-                }
-            }
-        );
-    };
-
-    getBook = (bookId) => {
+    /**
+     * Получение параметров книги через запрос к бэкэнду
+     * @param id
+     */
+    const getBook = (id) => {
 
         let requestData = {
             action: 'get_book',
-            bookId: bookId
+            bookId: id
         };
 
-        this.props.backendProvider(requestData).then(
+        props.backendProvider(requestData).then(
             response => {
                 if (response.status === 'success') {
-                    this.setState({
-                        bookId: bookId,
-                        book: response.data
-                    });
+                    setBookData(prevState => ({
+                        ...prevState,
+                        ...response.data
+                    }) );
                 }
             },
             error => {
@@ -66,23 +52,25 @@ class BookEditForm extends React.Component {
                     alert("Ошибка: "+error.message);
             }
         );
-
     };
 
-    createNewBook = () => {
+    /**
+     * Создание новой книги (через запрос к бэкэнду) на основе переданных полей из формы.
+     * При успешном создании книги - переход на страницу сосписком книг.
+     * @param book
+     */
+    const createNewBook = (book) => {
 
         let requestData = {
             action: 'add_book',
-            book: this.state.book
+            book: book
         };
 
-        this.props.backendProvider(requestData).then(
+        props.backendProvider(requestData).then(
             response => {
                 if ( response.status === 'success' ) {
-                    this.setState({
-                        editedBookId: response.data.bookId
-                    });
                     alert("Книга успешно добавлена");
+                    history.push('/list');
                 }
             },
             error => {
@@ -94,15 +82,19 @@ class BookEditForm extends React.Component {
         );
     };
 
-    updateBook = () => {
+    /**
+     * Изменение (обновление) данных уже существующей книги через запрос к бэкэнду
+     * @param book
+     */
+    const updateBook = (book) => {
 
         let requestData = {
             action: 'update_book',
-            bookId: this.state.bookId,
-            book: this.state.book
+            bookId: book.id,
+            book: book
         };
 
-        this.props.backendProvider(requestData).then(
+        props.backendProvider(requestData).then(
             response => {
                 if ( response.status === 'success' ) {
                     alert("Книга успешно изменена");
@@ -117,35 +109,49 @@ class BookEditForm extends React.Component {
         );
     };
 
-    saveChanges = (bookData) => {
+    /**
+     * Обработчик события отправки полей формы.
+     * В зависимости от текущего url инициируется создание новой книги ('/add')
+     * или обновление данных уже существующей (/edit/:bookId)
+     * @param bookProps
+     */
+    const submitHandler = (bookProps) => {
 
-        if ( bookData.readStatus === '' )
-            bookData.readStatus = 'toRead';
+        if ( bookProps.readStatus === '' )
+            bookProps.readStatus = 'toRead';
 
-        this.setState( prState => {
-                return( {
-                        book: bookData
-                } );
-            },
-            () => {
-                if ( this.props.action === 'create book' )
-                    this.createNewBook();
+        let actualBookData = {
+            ...bookData,
+            ...bookProps
+        };
 
-                else if ( this.props.action === 'edit book' )
-                    this.updateBook();
-            }
-            );
-    }
+        setBookData(actualBookData);
 
-    render() {
+        if ( pathname === '/add')
+            createNewBook(actualBookData);
+        else if ( pathname.includes('/edit') )
+            updateBook(actualBookData);
 
-        return(
-            <BookEditFormComponent
-                book={this.state.book}
-                handleSubmit={this.saveChanges}
-            />
+    };
+
+
+    if ( pathname.includes('/edit') && bookData.id === undefined ) {
+        return (
+            <div className="container">
+                <div className="alert alert-info" role="alert">
+                    пожалуйста, подождите. данные книги загружаются...
+                </div>
+            </div>
         );
     }
+
+    return(
+        <BookEditFormComponent
+            book={bookData}
+            submitHandler={submitHandler}
+        />
+    );
+
 }
 
 export default BookEditForm;

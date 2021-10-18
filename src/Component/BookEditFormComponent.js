@@ -1,127 +1,125 @@
-import React from 'react'
+/**
+ * Компонент для вывода формы редактирования книги.
+ * Для отображения текущего результата заполнения полей (в виде карточки книги) используется компонент BookCard.
+ */
+import React, {useState, useEffect} from 'react'
+import BookCard from './BookCard'
 import '../css/BookEditForm.css'
 
-class BookEditFormComponent extends React.Component {
+const BookEditFormComponent = (props) => {
 
-    constructor() {
-        super();
-        this.state = {
-            titleOrig: "",
-            titleRus: "",
-            authorNameOrig: "",
-            authorNameRus: "",
-            publicationYear: "",
-            coverImageLink: "",
-            annotation: "",
-            comment: "",
-            readStatus: "",
-            assessment: ""
-        }
-    }
+    let [book, setBook] = useState({
+        titleOrig: "",
+        titleRus: "",
+        authorNameOrig: "",
+        authorNameRus: "",
+        publicationYear: "",
+        coverImageLink: "",
+        annotation: "",
+        comment: "",
+        readStatus: "",
+        assessment: ""
+    });
 
-    componentDidMount() {
-        if ( this.props.book )
-            this.setState(this.props.book);
-    }
+    // обязательные для заполнения поля
+    let requiredFields = ['titleRus','authorNameRus','publicationYear'];
+    // незаполненные поля
+    let [invalidFields, setInvalidFields] = useState([]);
 
-    componentDidUpdate(prevProps) {
-        if( prevProps.book.titleRus !== this.props.book.titleRus ) {
-            this.setState(this.props.book);
-        }
-    }
+    useEffect( () => {
+        if ( props.book )
+            setBook(props.book);
+    }, [props.book]);
 
-    handleChange = (event) => {
+    /**
+     * Обработчик изменения полей формы создания/изменения книги.
+     * @param event
+     */
+    const handleChange = (event) => {
         let {name, type, value, checked} = event.target;
 
         if ( name === 'assessment' )
             value = +value;
 
-        this.setState({
-            [name]: (type === 'checkbox' ? checked : value),
-            saveButtonDisabled: false
-        });
+        let invalidFieldIndex = invalidFields.indexOf(name);
+        if ( invalidFieldIndex >= 0 ){
+            delete invalidFields[invalidFieldIndex];
+            setInvalidFields(invalidFields);
+        }
+        
+        setBook( prevState => ({
+            ...prevState,
+            [name]: (type === 'checkbox' ? checked : value)
+        }) );
 
         if ( name === 'readStatus' && value !== 'Has been read' ) {
-            this.setState({
+            setBook( prevState => ({
+                ...prevState,
                 assessment: ''
-            });
+            }) );
         }
-    }
+    };
 
-    handleSubmit = (event) => {
+    /**
+     * Обработчик события отправки полей формы.
+     * Если все обязательные поля заполнены, данные передаются в функцию submitHandler
+     * из компонента-контейнера BookEditForm.
+     *
+     * @param event
+     */
+    const handleSubmit = (event) => {
         event.preventDefault();
+        let invalidFields = validateRequiredFields();
+        setInvalidFields(invalidFields);
 
-        this.props.handleSubmit(this.state);
-    }
+        if ( invalidFields.length > 0 )
+            alert('Не заполнены обязательные поля');
+        else
+            props.submitHandler(book);
+    };
 
-    render() {
-        let assessmentClass = '';
-        let readStatusClass = '';
-        let readStatusRus = '';
-        switch (this.state.assessment) {
-            case 1:
-            case 2:
-                assessmentClass = 'alert-danger';
-                break;
-            case 3:
-                assessmentClass = 'alert-warning';
-                break;
-            case 4:
-                assessmentClass = 'alert-info';
-                break;
-            case 5:
-                assessmentClass = 'alert-success';
-                break;
-            default:
-                assessmentClass = 'sr-only';
-                break;
-        }
+    /**
+     * Проверка корректного заполнения обязательных полей
+     *
+     * @returns {Array.<string>}
+     */
+    const validateRequiredFields = () => {
 
-        switch (this.state.readStatus) {
-            case 'Has been read':
-                readStatusClass = 'alert-success';
-                readStatusRus = 'Была прочитана';
-                break;
-            case 'Current book':
-                readStatusClass = 'alert-info';
-                readStatusRus = 'Текущая книга';
-                break;
-            case 'To read':
-                readStatusClass = 'alert-secondary';
-                readStatusRus = 'Предстоит прочитать';
-                break;
-            default:
-                readStatusClass = 'sr-only';
-                break;
-        }
+        return requiredFields.filter( name => (
+             !book.hasOwnProperty(name)
+             || book[name] === ''
+             || book[name] === undefined
+             || ( name === 'publicationYear' && !Number.isInteger(+book[name]) )
+            )
+         );
+    };
 
     return (
-
         <div className="container-fluid book-edit-control">
             <div className="row">
                 <div className="col-md-6 col-lg-6 offset-md-1 offset-lg-1">
 
-                    <form onSubmit={this.handleSubmit}>
+                    <form onSubmit={handleSubmit}>
                         <div className="form-row">
                             <div className="form-group col-md-5 col-lg-5">
                                 <label>Название книги
-                                    <input type="text" className="form-control" name="titleRus"
-                                           value={this.state.titleRus ? this.state.titleRus : ''} onChange={this.handleChange}
-                                           placeholder="Назване книги на русском"/>
+                                    <input type="text" name="titleRus" placeholder="Назване книги на русском"
+                                           className={'form-control' + (invalidFields.includes('titleRus') ? ' is-invalid' : '')}
+                                           value={book.titleRus ? book.titleRus : ''} onChange={handleChange} />
                                 </label>
                             </div>
                             <div className="form-group col-md-5 col-lg-5">
                                 <label>Название в оригинале
                                     <input type="text" className="form-control" name="titleOrig"
-                                           value={this.state.titleOrig ? this.state.titleOrig : ''} onChange={this.handleChange}
+                                           value={book.titleOrig ? book.titleOrig : ''} onChange={handleChange}
                                            placeholder="Original book title"/>
                                 </label>
                             </div>
                             <div className="form-group col-md-2 col-lg-2">
                                 <label>Год публикации
-                                    <input type="number" className="form-control" name="publicationYear"
-                                           value={this.state.publicationYear ? this.state.publicationYear : ''} onChange={this.handleChange}
-                                           placeholder=""/>
+                                    <input type="number" name="publicationYear" placeholder=""
+                                           className={'form-control' + (invalidFields.includes('publicationYear') ? ' is-invalid' : '')}
+                                           value={book.publicationYear ? book.publicationYear : ''} onChange={handleChange} />
                                 </label>
                             </div>
                         </div>
@@ -129,22 +127,22 @@ class BookEditFormComponent extends React.Component {
                         <div className="form-row">
                             <div className="form-group col-md-5 col-lg-5">
                                 <label>Имя автора
-                                    <input type="text" className="form-control" name="authorNameRus"
-                                           value={this.state.authorNameRus ? this.state.authorNameRus : ''} onChange={this.handleChange}
-                                           placeholder="Имя автора на русском"/>
+                                    <input type="text" name="authorNameRus" placeholder="Имя автора на русском"
+                                           className={'form-control' + (invalidFields.includes('authorNameRus') ? ' is-invalid' : '')}
+                                           value={book.authorNameRus ? book.authorNameRus : ''} onChange={handleChange} />
                                 </label>
                             </div>
                             <div className="form-group col-md-4 col-lg-4">
                                 <label>Имя автора в оригинале
                                     <input type="text" className="form-control" name="authorNameOrig"
-                                           value={this.state.authorNameOrig ? this.state.authorNameOrig : ''} onChange={this.handleChange}
+                                           value={book.authorNameOrig ? book.authorNameOrig : ''} onChange={handleChange}
                                            placeholder="Author name"/>
                                 </label>
                             </div>
                             <div className="form-group col-md-3 col-lg-3">
                                 <label>Ссылка на обложку
                                     <input type="url" className="form-control" name="coverImageLink"
-                                           value={this.state.coverImageLink ? this.state.coverImageLink : ''} onChange={this.handleChange}
+                                           value={book.coverImageLink ? book.coverImageLink : ''} onChange={handleChange}
                                            placeholder="Image URL"/>
                                 </label>
                             </div>
@@ -154,15 +152,15 @@ class BookEditFormComponent extends React.Component {
                             <div className="form-group col-md-6 col-lg-6">
                                 <label>Аннотация
                                     <textarea rows="3" className="form-control" id="bookAnnotation" name="annotation"
-                                              value={this.state.annotation ? this.state.annotation : ''} onChange={this.handleChange}
+                                              value={book.annotation ? book.annotation : ''} onChange={handleChange}
                                               placeholder="Краткое описание книги, которое дает читателю представление о произведении"/>
                                 </label>
                             </div>
                             <div className="form-group col-md-6 col-lg-6">
                                 <label>Комментарий
                                     <textarea rows="3" className="form-control" id="userComment" name="comment"
-                                              value={this.state.comment ? this.state.comment : ''}
-                                              onChange={this.handleChange}
+                                              value={book.comment ? book.comment : ''}
+                                              onChange={handleChange}
                                               placeholder="Комментарий пользователя (читателя)"/>
                                 </label>
                             </div>
@@ -175,23 +173,23 @@ class BookEditFormComponent extends React.Component {
                                         <div className="form-check form-check-inline">
                                             <label className="form-check-label">
                                                 <input className="form-check-input" type="radio" name="readStatus"
-                                                       onChange={this.handleChange} value="Has been read"
-                                                       checked={this.state.readStatus === 'Has been read'}/>Была
+                                                       onChange={handleChange} value="Has been read"
+                                                       checked={book.readStatus === 'Has been read'}/>Была
                                                 прочитана
                                             </label>
                                         </div>
                                         <div className="form-check form-check-inline">
                                             <label className="form-check-label">
                                                 <input className="form-check-input" type="radio" name="readStatus"
-                                                       onChange={this.handleChange} value="Current book"
-                                                       checked={this.state.readStatus === 'Current book'}/>Текущая книга
+                                                       onChange={handleChange} value="Current book"
+                                                       checked={book.readStatus === 'Current book'}/>Текущая книга
                                             </label>
                                         </div>
                                         <div className="form-check form-check-inline">
                                             <label className="form-check-label">
                                                 <input className="form-check-input" type="radio" name="readStatus"
-                                                       onChange={this.handleChange} value="To read"
-                                                       checked={this.state.readStatus === 'To read'}/>Предстоит
+                                                       onChange={handleChange} value="To read"
+                                                       checked={book.readStatus === 'To read'}/>Предстоит
                                                 прочитать
                                             </label>
                                         </div>
@@ -205,36 +203,36 @@ class BookEditFormComponent extends React.Component {
                                         <div className="form-check form-check-inline">
                                             <label className="form-check-label">
                                                 <input className="form-check-input" type="radio" name="assessment"
-                                                       onChange={this.handleChange} value="1"
-                                                       checked={this.state.assessment === 1}/>1
+                                                       onChange={handleChange} value="1"
+                                                       checked={book.assessment === 1}/>1
                                             </label>
                                         </div>
                                         <div className="form-check form-check-inline">
                                             <label className="form-check-label">
                                                 <input className="form-check-input" type="radio" name="assessment"
-                                                       onChange={this.handleChange} value="2"
-                                                       checked={this.state.assessment === 2}/>2
+                                                       onChange={handleChange} value="2"
+                                                       checked={book.assessment === 2}/>2
                                             </label>
                                         </div>
                                         <div className="form-check form-check-inline">
                                             <label className="form-check-label">
                                                 <input className="form-check-input" type="radio" name="assessment"
-                                                       onChange={this.handleChange} value="3"
-                                                       checked={this.state.assessment === 3}/>3
+                                                       onChange={handleChange} value="3"
+                                                       checked={book.assessment === 3}/>3
                                             </label>
                                         </div>
                                         <div className="form-check form-check-inline">
                                             <label className="form-check-label">
                                                 <input className="form-check-input" type="radio" name="assessment"
-                                                       onChange={this.handleChange} value="4"
-                                                       checked={this.state.assessment === 4}/>4
+                                                       onChange={handleChange} value="4"
+                                                       checked={book.assessment === 4}/>4
                                             </label>
                                         </div>
                                         <div className="form-check form-check-inline">
                                             <label className="form-check-label">
                                                 <input className="form-check-input" type="radio" name="assessment"
-                                                       onChange={this.handleChange} value="5"
-                                                       checked={this.state.assessment === 5}/>5
+                                                       onChange={handleChange} value="5"
+                                                       checked={book.assessment === 5}/>5
                                             </label>
                                         </div>
                                     </div>
@@ -250,49 +248,12 @@ class BookEditFormComponent extends React.Component {
                 </div>
 
                 <div className="col-sm-4 col-md-4 col-lg-4">
-                    <div className="card">
-                        <div className="card-header">
-                            <h5 className="card-title">{this.state.titleRus}</h5>
-                            <h6 className="card-subtitle text-muted">{this.state.titleOrig}</h6>
-                        </div>
-                        <div className="card-img-container">
-                            <img src={this.state.coverImageLink} alt="Card image cap"/>
-                        </div>
-                        <div className="card-body">
-                            <h6 className="card-subtitle text-muted">
-                                {this.state.authorNameRus} <span
-                                className="badge badge-secondary">{this.state.publicationYear}</span>
-                            </h6>
-                            <h6 className="card-subtitle text-muted">
-                                {this.state.authorNameOrig}
-                            </h6>
-                            <p className="card-text">
-                                {this.state.annotation}
-                            </p>
-                            <div className="alert alert-secondary user-comment-panel" role="alert" aria-label='комментарий'>
-                                <i>{this.state.comment}</i>
-                            </div>
-
-                        </div>
-                        <div className="card-footer">
-                            <div className="row">
-                                <div className="col-md-4 col-lg-4 read-status-container">
-                                    <div className={"alert " + readStatusClass} role="alert">{readStatusRus}</div>
-                                </div>
-
-                                <div className="col-md-2 col-lg-2 offset-md-6 offset-lg-6">
-                                    <div className={"alert " + assessmentClass} role="alert">
-                                        <b>{this.state.assessment}</b></div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                    <BookCard data={book} />
                 </div>
             </div>
         </div>
 
     );
-    }
-}
+};
 
 export default BookEditFormComponent;
