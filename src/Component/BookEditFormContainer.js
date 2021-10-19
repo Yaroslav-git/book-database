@@ -2,15 +2,17 @@
  * Компонент для редактирования книги - создания новой или изменения существующей.
  * В данном компоненте реализуется логика, в компоненте BookEditFormComponent - рендер формы редактирования.
  */
-import React, {useState, useEffect} from 'react'
-import {useParams, useLocation, useHistory} from "react-router-dom"
-import BookEditFormComponent from './BookEditFormComponent'
+import React, {useState, useEffect, useContext} from 'react';
+import {useParams, useLocation, useHistory} from 'react-router-dom';
+import {BookDBContext} from '../bookDataBaseContext';
+import BookEditFormComponent from './BookEditFormComponent';
 
-const BookEditForm = (props) => {
+const BookEditForm = () => {
 
     let history = useHistory();
     let {bookId: paramsBookId} = useParams();
     let {pathname} = useLocation();
+    let {backendProvider} = useContext(BookDBContext);
     let [bookData, setBookData] = useState({});
 
     /**
@@ -36,7 +38,7 @@ const BookEditForm = (props) => {
             bookId: id
         };
 
-        props.backendProvider(requestData).then(
+        backendProvider(requestData).then(
             response => {
                 if (response.status === 'success') {
                     setBookData(prevState => ({
@@ -46,10 +48,7 @@ const BookEditForm = (props) => {
                 }
             },
             error => {
-                if ( error.message.includes('authentication required') )
-                    alert("Требуется авторизация");
-                else
-                    alert("Ошибка: "+error.message);
+                alert("Ошибка: "+error.message);
             }
         );
     };
@@ -66,7 +65,7 @@ const BookEditForm = (props) => {
             book: book
         };
 
-        props.backendProvider(requestData).then(
+        backendProvider(requestData).then(
             response => {
                 if ( response.status === 'success' ) {
                     alert("Книга успешно добавлена");
@@ -74,10 +73,7 @@ const BookEditForm = (props) => {
                 }
             },
             error => {
-                if ( error.message.includes('authentication required') )
-                    alert("Требуется авторизация");
-                else
-                    alert("Ошибка: "+error.message);
+                alert("Ошибка: "+error.message);
             }
         );
     };
@@ -94,17 +90,14 @@ const BookEditForm = (props) => {
             book: book
         };
 
-        props.backendProvider(requestData).then(
+        backendProvider(requestData).then(
             response => {
                 if ( response.status === 'success' ) {
                     alert("Книга успешно изменена");
                 }
             },
             error => {
-                if ( error.message.includes('authentication required') )
-                    alert("Требуется авторизация");
-                else
-                    alert("Ошибка: "+error.message);
+                alert("Ошибка: "+error.message);
             }
         );
     };
@@ -115,7 +108,7 @@ const BookEditForm = (props) => {
      * или обновление данных уже существующей (/edit/:bookId)
      * @param bookProps
      */
-    const submitHandler = (bookProps) => {
+    const editBook = (bookProps) => {
 
         if ( bookProps.readStatus === '' )
             bookProps.readStatus = 'toRead';
@@ -148,10 +141,10 @@ const BookEditForm = (props) => {
     return(
         <BookEditFormComponent
             book={bookData}
-            submitHandler={submitHandler}
+            submitHandler={editBook}
         />
     );
 
-}
+};
 
 export default BookEditForm;

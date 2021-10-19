@@ -2,11 +2,12 @@
  * Компонент для вывода навигационной панели.
  * Навигация реализована через react-router-dom
  */
-import React, {useState} from 'react';
-import {Link, useLocation} from 'react-router-dom'
-import '../css/Header.css'
+import React, {useState, useContext} from 'react';
+import {Link, useLocation} from 'react-router-dom';
+import '../css/Header.css';
+import {BookDBContext} from '../bookDataBaseContext';
 
-const Header = (props) => {
+const Header = () => {
 
     /**
      * флаг exitButtonVisible нужен для отображения/скрытия кнопки "Выйти"
@@ -15,27 +16,36 @@ const Header = (props) => {
     let [exitButtonVisible, setExitButtonVisible] = useState(false);
     let {pathname} = useLocation();
 
+    /**
+     * Параметры пользователя и методы для их изменения из контекста приложения.
+     */
+    let {
+        loggedIn,
+        setLoggedIn,
+        userName,
+        setUserName,
+        setSessionId,
+        backendProvider
+    } = useContext(BookDBContext);
+
     const toggleExitButtonVisibility = () => {
         setExitButtonVisible(prevState => !prevState);
     };
 
     /**
      * Обработка нажатия на кнопку "Выйти" - запрос (к бэкэнду) на прекращение текущей сессии пользователя.
-     * При успешном выходе статус входа пользователя (переменная состояния loggedIn компонента App)
-     * меняется на отрицательный. Идентификатор сессии удаляется из состояния и из localStorage
+     * При успешном выходе статус входа пользователя (переменная состояния loggedIn из контекста приложения)
+     * меняется на отрицательный. Идентификатор сессии удаляется из контекста и из localStorage
      */
     const handleExitButtonClick = () => {
         toggleExitButtonVisibility();
 
-        let requestData = {
-            action: 'sign_out',
-        };
-
-        props.backendProvider(requestData).then(
+        backendProvider( {action: 'sign_out'} ).then(
             response => {
                 if ( response.status === 'success' ) {
-                    props.setLoggedIn(false);
-                    props.setSessionId('');
+                    setLoggedIn(false);
+                    setSessionId('');
+                    setUserName('');
                     window.localStorage.removeItem('sessionId');
                 }
             },
@@ -61,7 +71,7 @@ const Header = (props) => {
                                 <Link className="nav-link" to="/">Главная</Link>
                             </li>
                             {
-                                props.loggedIn ?
+                                loggedIn ?
                                     <>
                                         <li className={'nav-item' + (pathname === '/add' ? ' active' : '')}>
                                             <Link className="nav-link" to="/add">Добавление</Link>
@@ -78,9 +88,9 @@ const Header = (props) => {
                             }
                         </ul>
                         {
-                            props.loggedIn &&
+                            loggedIn &&
                             <div className="btn-group user-btn-gr">
-                                <button type="button" className="btn user-name">{props.userName}</button>
+                                <button type="button" className="btn user-name">{userName}</button>
                                 <button type="button" className={"btn dropdown-toggle dropdown-toggle-split "
                                 +(exitButtonVisible ? 'dropdown-toggle-up' : '')} onClick={toggleExitButtonVisibility}
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
