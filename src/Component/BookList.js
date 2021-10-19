@@ -2,14 +2,16 @@
  * Компонент для получения, обновления и вывода списка книг пользователя.
  * Книги представлены в виде карточек (Card) - компонент BookCard.
  */
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect, useContext} from 'react';
+import {BookDBContext} from '../bookDataBaseContext';
 
 import BookCard from './BookCard'
 
 
-const BookList = (props) => {
+const BookList = () => {
 
     let [userBookList, setUserBookList] = useState();
+    let {backendProvider} = useContext(BookDBContext);
 
     useEffect(() => {
         getBookList();
@@ -25,7 +27,7 @@ const BookList = (props) => {
             action: 'get_book_list'
         };
 
-        props.backendProvider(requestData).then(
+        backendProvider(requestData).then(
             response => {
                 if (response.status === 'success') {
                     let list = response.data.map(item =>
@@ -54,7 +56,7 @@ const BookList = (props) => {
             bookId: bookId
         };
 
-        props.backendProvider(requestData).then(
+        backendProvider(requestData).then(
             response => {
                 if (response.status === 'success') {
                     alert("Книга удалена");

@@ -1,7 +1,11 @@
-import React, {useState} from 'react'
-import {useHistory} from 'react-router-dom'
+/**
+ * Компонент, реализующий аутентификацию пользователей.
+ */
+import React, {useState, useContext} from 'react';
+import {useHistory} from 'react-router-dom';
+import {BookDBContext} from "../bookDataBaseContext";
 
-const Authentication = (props) => {
+const Authentication = () => {
 
     let [authData, setAuthData] = useState({login: '', password: ''});
     let history = useHistory();
@@ -13,6 +17,16 @@ const Authentication = (props) => {
     let [loginError, setLoginError] = useState(false);
     let [passwordError, setPasswordError] = useState(false);
     let [authError, setAuthError] = useState('');
+
+    /**
+     * Параметры пользователя и методы для их изменения из контекста приложения.
+     */
+    let {
+        setLoggedIn,
+        setUserName,
+        setSessionId,
+        backendProvider
+    } = useContext(BookDBContext);
 
     /**
      * Обработчик изменения содержимого полей "логин" и "пароль".
@@ -57,19 +71,19 @@ const Authentication = (props) => {
             password: authData.password
         };
 
-        props.backendProvider(requestData).then(
+        backendProvider(requestData).then(
             response => {
                 if ( response.status === 'success' ) {
                     setAuthError('');
-                    props.setUserName(response.data.userName);
-                    props.setSessionId(response.data.sessionId);
-                    props.setLoggedIn(true);
+                    setUserName(response.data.userName);
+                    setSessionId(response.data.sessionId);
+                    setLoggedIn(true);
                     window.localStorage.setItem('sessionId', response.data.sessionId);
                     history.push('/');
                 }
             },
             error => {
-                props.setLoggedIn(false);
+                setLoggedIn(false);
                 setAuthError(error.message);
             }
         );
