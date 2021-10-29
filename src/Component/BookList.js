@@ -70,7 +70,7 @@ const BookList = () => {
     };
 
     return (
-        <div className="album py-5 bg-light">
+        <div className="album py-5">
             <div className="container-fluid">
                 <div className="row">
                     {

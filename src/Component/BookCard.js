@@ -6,7 +6,7 @@
 
 import React from 'react';
 import {Link} from "react-router-dom"
-import '../css/BookListItem.css'
+import '../css/BookCard.css'
 import '../css/hint.css'
 
 const BookCard = ({data:{
@@ -86,7 +86,7 @@ const BookCard = ({data:{
     };
 
     return (
-        <div className="book-list-item">
+        <div className="book-card">
 
             <div className="card">
                 <div className="card-header">
