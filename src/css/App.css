@@ -7,11 +7,6 @@
   text-align: center;
 }
 
-.album {
-  background-color: #edf2f9 !important;
-  padding-top: 1rem !important;
-}
-
 .App-logo {
   animation: App-logo-spin infinite 20s linear;
   height: 40vmin;
