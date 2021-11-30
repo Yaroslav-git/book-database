@@ -2,57 +2,52 @@
  * Компонент для вывода навигационной панели.
  * Навигация реализована через react-router-dom
  */
-import React, {useState, useContext} from 'react';
+import React, {useState, useEffect} from 'react';
 import {Link, useLocation} from 'react-router-dom';
 import '../css/Header.css';
-import {BookDBContext} from '../bookDataBaseContext';
+import {connect} from 'react-redux';
+import {logOut} from '../store/user/actions';
 
-const Header = () => {
+const Header = (props) => {
 
     /**
      * флаг exitButtonVisible нужен для отображения/скрытия кнопки "Выйти"
      * из выпадающего списка без использования JQuery в bootstrap
      */
     let [exitButtonVisible, setExitButtonVisible] = useState(false);
+    let [exitRequest, setExitRequest] = useState(false);
     let {pathname} = useLocation();
 
-    /**
-     * Параметры пользователя и методы для их изменения из контекста приложения.
-     */
-    let {
-        loggedIn,
-        setLoggedIn,
-        userName,
-        setUserName,
-        setSessionId,
-        backendProvider
-    } = useContext(BookDBContext);
+    useEffect(() => {
+        if ( props.errorMessage && exitRequest )
+            alert(props.errorMessage);
+    }, [props.errorMessage]);
 
     const toggleExitButtonVisibility = () => {
         setExitButtonVisible(prevState => !prevState);
     };
 
     /**
+     * Обработка изменений статусов запрошенных действий
+     */
+    useEffect(() => {
+        if (props.action.type === 'log_out') {
+            if ( props.action.status === 'error' ) {
+                console.log(props.action.message);
+                alert('Ошибка при завершении сессии');
+            }
+        }
+    }, [props.action.type, props.action.status, props.action.message]);
+
+    /**
      * Обработка нажатия на кнопку "Выйти" - запрос (к бэкэнду) на прекращение текущей сессии пользователя.
-     * При успешном выходе статус входа пользователя (переменная состояния loggedIn из контекста приложения)
-     * меняется на отрицательный. Идентификатор сессии удаляется из контекста и из localStorage
+     * При успешном выходе статус входа пользователя (в store) меняется на отрицательный.
+     * Идентификатор сессии удаляется из store и из localStorage
      */
     const handleExitButtonClick = () => {
         toggleExitButtonVisibility();
-
-        backendProvider( {action: 'sign_out'} ).then(
-            response => {
-                if ( response.status === 'success' ) {
-                    setLoggedIn(false);
-                    setSessionId('');
-                    setUserName('');
-                    window.localStorage.removeItem('sessionId');
-                }
-            },
-            error => {
-                alert(error.message);
-            }
-        );
+        setExitRequest(true);
+        props.logOut();
     };
 
     return (
@@ -71,7 +66,7 @@ const Header = () => {
                                 <Link className="nav-link" to="/">Главная</Link>
                             </li>
                             {
-                                loggedIn ?
+                                props.loggedIn ?
                                     <>
                                         <li className={'nav-item' + (pathname === '/add' ? ' active' : '')}>
                                             <Link className="nav-link" to="/add">Добавление</Link>
@@ -88,9 +83,9 @@ const Header = () => {
                             }
                         </ul>
                         {
-                            loggedIn &&
+                            props.loggedIn &&
                             <div className="btn-group user-btn-gr">
-                                <button type="button" className="btn user-name">{userName}</button>
+                                <button type="button" className="btn user-name">{props.userName}</button>
                                 <button type="button" className={"btn dropdown-toggle dropdown-toggle-split "
                                 +(exitButtonVisible ? 'dropdown-toggle-up' : '')} onClick={toggleExitButtonVisibility}
                                         data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" >
@@ -105,6 +100,7 @@ const Header = () => {
                 </nav>
             </header>
     );
-}
+};
 
-export default Header;
+export default connect(state => state.user, {logOut})(Header);
+//export default Header;

@@ -2,135 +2,111 @@
  * Компонент для редактирования книги - создания новой или изменения существующей.
  * В данном компоненте реализуется логика, в компоненте BookEditFormComponent - рендер формы редактирования.
  */
-import React, {useState, useEffect, useContext} from 'react';
+import React, {useEffect} from 'react';
 import {useParams, useLocation, useHistory} from 'react-router-dom';
-import {BookDBContext} from '../bookDataBaseContext';
+import {connect} from 'react-redux';
 import BookEditFormComponent from './BookEditFormComponent';
+import {getBook, updateBook, createBook, clearBookData, removeBook} from '../store/bookEditForm/actions';
 
-const BookEditForm = () => {
+const BookEditForm = (props) => {
 
     let history = useHistory();
     let {bookId: paramsBookId} = useParams();
     let {pathname} = useLocation();
-    let {backendProvider} = useContext(BookDBContext);
-    let [bookData, setBookData] = useState({});
 
     /**
      * Если через url передан идентификатор книги (bookId),
-     * то через запрос к бэкэнду происходит получение данных книги.
+     * то происходит получение данных книги через API.
      */
     useEffect(() => {
         if (paramsBookId !== undefined) {
-            getBook(paramsBookId);
+            props.getBook(paramsBookId);
         }
-        else
-            setBookData({});
+        else {
+            props.clearBookData();
+        }
     }, [paramsBookId]);
 
     /**
-     * Получение параметров книги через запрос к бэкэнду
-     * @param id
+     * Обработка изменений статусов запрошенных действий
      */
-    const getBook = (id) => {
+    useEffect(() => {
 
-        let requestData = {
-            action: 'get_book',
-            bookId: id
-        };
+        if ( props.action.message === 'authentication required' ) {
+            alert('Требуется аутентификация');
+            history.push('/logIn');
+            return;
+        }
 
-        backendProvider(requestData).then(
-            response => {
-                if (response.status === 'success') {
-                    setBookData(prevState => ({
-                        ...prevState,
-                        ...response.data
-                    }) );
+        switch(props.action.type){
+            case 'get_book':
+                if ( props.action.status === 'error' ) {
+                    alert('Ошибка при получении данных книги');
+                    console.log(props.action.message);
                 }
-            },
-            error => {
-                alert("Ошибка: "+error.message);
-            }
-        );
-    };
-
-    /**
-     * Создание новой книги (через запрос к бэкэнду) на основе переданных полей из формы.
-     * При успешном создании книги - переход на страницу сосписком книг.
-     * @param book
-     */
-    const createNewBook = (book) => {
-
-        let requestData = {
-            action: 'add_book',
-            book: book
-        };
-
-        backendProvider(requestData).then(
-            response => {
-                if ( response.status === 'success' ) {
-                    alert("Книга успешно добавлена");
-                    history.push('/list');
+                break;
+            case 'create_book':
+                if ( props.action.status === 'error' ) {
+                    alert('Ошибка при создании книги');
+                    console.log(props.action.message);
                 }
-            },
-            error => {
-                alert("Ошибка: "+error.message);
-            }
-        );
-    };
-
-    /**
-     * Изменение (обновление) данных уже существующей книги через запрос к бэкэнду
-     * @param book
-     */
-    const updateBook = (book) => {
-
-        let requestData = {
-            action: 'update_book',
-            bookId: book.id,
-            book: book
-        };
-
-        backendProvider(requestData).then(
-            response => {
-                if ( response.status === 'success' ) {
-                    alert("Книга успешно изменена");
+                if ( props.action.status === 'success' ) {
+                    alert('Книга успешно создана');
+                    history.push('/edit/'+props.book.id);
                 }
-            },
-            error => {
-                alert("Ошибка: "+error.message);
-            }
-        );
-    };
+                break;
+            case 'update_book':
+                if ( props.action.status === 'error' ) {
+                    alert('Ошибка при сохранении изменений');
+                    console.log(props.action.message);
+                }
+                if ( props.action.status === 'success' ) {
+                    alert('Изменения успешно сохранены');
+                    console.log(props.action.message);
+                }
+                break;
+            case 'remove_book':
+                if ( props.action.status === 'error' ) {
+                    alert('Ошибка при удалении');
+                    console.log(props.action.message);
+                }
+                if ( props.action.status === 'success' ) {
+                    alert('Книга удалена');
+                    history.push('/add');
+                }
+                break;
+        }
+    }, [props.action.type, props.action.status, props.action.message]);
+
 
     /**
      * Обработчик события отправки полей формы.
      * В зависимости от текущего url инициируется создание новой книги ('/add')
      * или обновление данных уже существующей (/edit/:bookId)
-     * @param bookProps
+     * @param bookData
      */
-    const editBook = (bookProps) => {
+    const editBook = (bookData) => {
 
-        if ( bookProps.readStatus === '' )
-            bookProps.readStatus = 'toRead';
+        if ( bookData.readStatus === '' )
+            bookData.readStatus = 'To read';
 
         let actualBookData = {
-            ...bookData,
-            ...bookProps
+            ...props.book,
+            ...bookData
         };
 
-        setBookData(actualBookData);
-
-        if ( pathname === '/add')
-            createNewBook(actualBookData);
-        else if ( pathname.includes('/edit') )
-            updateBook(actualBookData);
-
+        if ( pathname.includes('/edit') )
+            props.updateBook(actualBookData);
+        else if ( pathname === '/add')
+            props.createBook(actualBookData);
     };
 
-
-    if ( pathname.includes('/edit') && bookData.id === undefined ) {
+    /**
+     * При загрузке данных книги вывести оповещение
+     */
+    if ( props.action.type === 'get_book' && props.action.status === 'pending' ) {
         return (
-            <div className="container">
+            <div className="container book-edit-control">
                 <div className="alert alert-info" role="alert">
                     пожалуйста, подождите. данные книги загружаются...
                 </div>
@@ -140,11 +116,27 @@ const BookEditForm = () => {
 
     return(
         <BookEditFormComponent
-            book={bookData}
+            book={props.book}
             submitHandler={editBook}
+            removeHandler={props.book.id && props.removeBook}
         />
     );
 
 };
 
-export default BookEditForm;
+const mapStateToProps = state => {
+    return {
+        book: state.bookEditForm.bookData,
+        action: state.bookEditForm.action
+    };
+};
+
+const mapDispatchToProps = {
+    getBook,
+    updateBook,
+    createBook,
+    clearBookData,
+    removeBook
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(BookEditForm);

@@ -1,11 +1,12 @@
 /**
  * Компонент, реализующий аутентификацию пользователей.
  */
-import React, {useState, useContext} from 'react';
+import React, {useState, useEffect} from 'react';
 import {useHistory} from 'react-router-dom';
-import {BookDBContext} from "../bookDataBaseContext";
+import {connect} from 'react-redux';
+import {logIn} from '../store/user/actions';
 
-const Authentication = () => {
+const Authentication = (props) => {
 
     let [authData, setAuthData] = useState({login: '', password: ''});
     let history = useHistory();
@@ -16,17 +17,11 @@ const Authentication = () => {
      */
     let [loginError, setLoginError] = useState(false);
     let [passwordError, setPasswordError] = useState(false);
-    let [authError, setAuthError] = useState('');
 
-    /**
-     * Параметры пользователя и методы для их изменения из контекста приложения.
-     */
-    let {
-        setLoggedIn,
-        setUserName,
-        setSessionId,
-        backendProvider
-    } = useContext(BookDBContext);
+    useEffect(() => {
+        if ( props.loggedIn )
+            history.push('/');
+    }, [props.loggedIn]);
 
     /**
      * Обработчик изменения содержимого полей "логин" и "пароль".
@@ -65,28 +60,7 @@ const Authentication = () => {
         if ( (authData.login === '') || (authData.password === '') )
             return;
 
-        let requestData = {
-            action: 'authentication',
-            login: authData.login,
-            password: authData.password
-        };
-
-        backendProvider(requestData).then(
-            response => {
-                if ( response.status === 'success' ) {
-                    setAuthError('');
-                    setUserName(response.data.userName);
-                    setSessionId(response.data.sessionId);
-                    setLoggedIn(true);
-                    window.localStorage.setItem('sessionId', response.data.sessionId);
-                    history.push('/');
-                }
-            },
-            error => {
-                setLoggedIn(false);
-                setAuthError(error.message);
-            }
-        );
+        props.logIn(authData);
     };
 
     return (
@@ -123,15 +97,15 @@ const Authentication = () => {
                 </div>
                 <br/>
                 {
-                    authError !== '' &&
+                    (props.action.message !== '' && props.action.message !== 'authentication required') &&
                     <div className="row">
                         <div className="col-md-4 col-lg-4 offset-md-4 offset-lg-4">
-                            <div className="alert alert-danger" role="alert"> {authError} </div>
+                            <div className="alert alert-danger" role="alert"> {props.action.message} </div>
                         </div>
                     </div>
                 }
             </div>
     );
-}
+};
 
-export default Authentication
+export default connect(state => state.user, {logIn})(Authentication);

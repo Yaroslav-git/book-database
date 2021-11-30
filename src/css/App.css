@@ -48,5 +48,5 @@ body {
 .book-edit-control,
 .authentication-control,
 .home-page {
-  padding-top: 2rem;
+  padding-top: 2rem !important;
 }

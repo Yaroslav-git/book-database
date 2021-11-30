@@ -5,9 +5,9 @@
  */
 
 import React from 'react';
-import {Link} from "react-router-dom"
-import '../css/BookCard.css'
-import '../css/hint.css'
+import {Link} from 'react-router-dom';
+import '../css/BookCard.css';
+import '../css/hint.css';
 
 const BookCard = ({data:{
                         assessment,
