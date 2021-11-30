@@ -1,10 +1,10 @@
 /**
- * Компонент, который проверяет статус пользователя, управляет навигацией в приложении
- * и определяет, какие разделы приложения доступны пользователю.
+ * Компонент, который управляет навигацией в приложении, определяет, какие разделы приложения доступны пользователю
+ * и проверяет статус пользователя при создании.
  */
-import React, {useContext, useEffect} from 'react';
+import React, {useEffect} from 'react';
 import {Switch, Route, useHistory} from 'react-router-dom';
-import {BookDBContext} from './bookDataBaseContext';
+import {connect} from 'react-redux';
 import './css/App.css';
 import Header from './Component/Header';
 import Footer from './Component/Footer';
@@ -12,19 +12,9 @@ import BookEditForm from './Component/BookEditFormContainer';
 import BookList from './Component/BookList';
 import Authentication from './Component/Authentication';
 import HomePage from './Component/HomePage';
+import {validateSession} from './store/user/actions';
 
-const App = () => {
-
-    /**
-     * Параметры пользователя и методы для их изменения из контекста приложения.
-     */
-    let {
-        loggedIn,
-        setLoggedIn,
-        setUserName,
-        setSessionId,
-        backendProvider
-    } = useContext(BookDBContext);
+const App = (props) => {
 
     let history = useHistory();
 
@@ -33,44 +23,26 @@ const App = () => {
      * проверяется актуальность этой сессии. Если идентификатора сессии нет - переход на страницу аутентификации.
      */
     useEffect(() => {
-        if ( !loggedIn ) {
-            if ( 'sessionId' in window.localStorage ) {
-                validateSession(window.localStorage.getItem('sessionId'));
-            }
-            else {
+        if ( !props.loggedIn ) {
+            if ( 'sessionId' in window.localStorage )
+                props.validateSession();
+            else
                 history.push('/logIn');
-            }
         }
     }, []);
 
     /**
-     * Проверка актуальности пользовательской сессии.
-     * Если сессия активна, статус входа пользователя (переменная состояния из контекста loggedIn) меняется на положительный.
-     *
-     * @param sessionId
+     * Обработка изменений статусов запрошенных действий
      */
-    const validateSession = (sessionId) => {
-
-        let requestData = {
-            action: 'authentication',
-            sessionId: sessionId
-        };
-
-        backendProvider(requestData).then(
-            response => {
-                if ( response.status === 'success' ) {
-                    setUserName(response.data.userName);
-                    setSessionId(response.data.sessionId);
-                    setLoggedIn(true);
-                    window.localStorage.setItem('sessionId', response.data.sessionId);
-                }
-            },
-            error => {
-                setLoggedIn(false);
-                console.log(error.message);
+    useEffect(() => {
+        if ( props.action.type === 'validate_session' ) {
+            if ( props.action.status === 'error' ) {
+                console.log(props.action.message);
+                if ( props.action.message !== 'authentication required' )
+                    alert('Ошибка при валидации пользовательской сессии');
             }
-        );
-    };
+        }
+    }, [props.action.type, props.action.status, props.action.message]);
 
     /**
      * Выводя компонентов с использованием Switch из react-router-dom.
@@ -88,15 +60,15 @@ const App = () => {
                     </Route>
 
                     <Route path="/list">
-                        { loggedIn && <BookList /> }
+                        { props.loggedIn && <BookList /> }
                     </Route>
 
                     <Route path="/add" >
-                        { loggedIn && <BookEditForm /> }
+                        { props.loggedIn && <BookEditForm /> }
                     </Route>
 
                     <Route path="/edit/:bookId" >
-                        { loggedIn && <BookEditForm /> }
+                        { props.loggedIn && <BookEditForm /> }
                     </Route>
 
                     <Route path="/logIn" >
@@ -110,4 +82,6 @@ const App = () => {
     )
 };
 
-export default App;
+export default connect(state => state.user, {validateSession})(App);
+
+//export default App;

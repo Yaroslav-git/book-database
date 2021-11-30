@@ -9,16 +9,16 @@ import '../css/BookEditForm.css'
 const BookEditFormComponent = (props) => {
 
     let [book, setBook] = useState({
-        titleOrig: "",
-        titleRus: "",
-        authorNameOrig: "",
-        authorNameRus: "",
-        publicationYear: "",
-        coverImageLink: "",
-        annotation: "",
-        comment: "",
-        readStatus: "",
-        assessment: ""
+        titleOrig: '',
+        titleRus: '',
+        authorNameOrig: '',
+        authorNameRus: '',
+        publicationYear: '',
+        coverImageLink: '',
+        annotation: '',
+        comment: '',
+        readStatus: '',
+        assessment: ''
     });
 
     // обязательные для заполнения поля
@@ -241,14 +241,16 @@ const BookEditFormComponent = (props) => {
                         </div>
                         <div className="form-row">
                             <div className="form-group offset-md-9 col-md-3">
-                                <button type="submit" className="btn btn-primary">Сохранить</button>
+                                <button type="submit" className="btn btn-primary">
+                                    {props.book.id ? 'Сохранить изменения' : 'Создать книгу'}
+                                </button>
                             </div>
                         </div>
                     </form>
                 </div>
 
                 <div className="col-sm-4 col-md-4 col-lg-4">
-                    <BookCard data={book} />
+                    <BookCard data={book} removeHandler={props.removeHandler}/>
                 </div>
             </div>
         </div>
