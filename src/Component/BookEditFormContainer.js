@@ -17,14 +17,13 @@ const BookEditForm = (props) => {
     /**
      * Если через url передан идентификатор книги (bookId),
      * то происходит получение данных книги через API.
+     * Перед размонтированием компонента, удалить данные загруженной книги.
      */
     useEffect(() => {
         if (paramsBookId !== undefined) {
             props.getBook(paramsBookId);
         }
-        else {
-            props.clearBookData();
-        }
+        return () => props.clearBookData()
     }, [paramsBookId]);
 
     /**

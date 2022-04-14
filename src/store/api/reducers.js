@@ -2,7 +2,7 @@ const initialState = {
     provider: (data) => {
         return new Promise( (resolve, reject) => {
             fetch(
-                'http://dev.services2.infotell.ru/bookDB/index.php',
+                //api url,
                 {
                     method: 'POST',
                     mode: 'cors',
