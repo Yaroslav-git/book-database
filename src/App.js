@@ -14,7 +14,7 @@ class App extends React.Component {
             loggedIn: false,
             userName: '',
             sessionId: '',
-            backendUrl: 'http://dev.services2.infotell.ru/bookDB/index.php',
+            backendUrl: '//api url//',
             activeView: '',
             editedBookId: -1,
             authenticationError: ''
