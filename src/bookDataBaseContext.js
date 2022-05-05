@@ -10,7 +10,7 @@ const BookDBContext = React.createContext();
 
 const BookDBContextProvider = (props) => {
 
-    const BACKENDURL = 'http://dev.services2.infotell.ru/bookDB/index.php';
+    const BACKENDURL = '//api url//';
     let history = useHistory();
     let [loggedIn, setLoggedIn] = useState(false);
     let [userName, setUserName] = useState('');
