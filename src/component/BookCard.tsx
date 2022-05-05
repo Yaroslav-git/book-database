@@ -1,15 +1,21 @@
 /**
  * Компонент визуального представления книги пользователя в форме элементов Card из bootstrap.
  * Обложку и блок с аннотацией можно развернуть и свернуть.
- * Пепреход к редактированию происходит при помощи Link
+ * Переход к редактированию происходит при помощи Link
  */
 
 import React from 'react';
 import {Link} from 'react-router-dom';
 import '../css/BookCard.css';
 import '../css/hint.css';
+import {IBook} from './interfaces'
 
-const BookCard = ({data:{
+interface IBookCard {
+    data: IBook
+    removeHandler?: (id: number) => void
+}
+
+const BookCard: React.FC<IBookCard> = ({data:{
                         assessment,
                         titleRus,
                         titleOrig,
@@ -25,9 +31,9 @@ const BookCard = ({data:{
                     removeHandler}) =>
 {
 
-    let assessmentClass = '';
-    let readStatusClass = '';
-    let readStatusRus = '';
+    let assessmentClass: string = '';
+    let readStatusClass: string = '';
+    let readStatusRus: string = '';
 
     // стилизация элемента с оценкой с использованием классов bootstrap
     switch (assessment) {
@@ -69,19 +75,19 @@ const BookCard = ({data:{
      * Обработчик переключения вида обложки (сжатый/развёрнутый) и аннотации (скрытый/развёрнутый)
      * @param event
      */
-    const switchViewType = (event) => {
-        let {tagName, classList} = event.target;
+    const switchViewType = (event: React.MouseEvent<HTMLHtmlElement>) => {
+        let {tagName, classList} = event.currentTarget;
 
         if ( tagName === 'I' && classList.contains('img-size-toggle-icon')) {
-            event.target.closest('.card-img-container').classList.toggle("wrapped-content");
-            event.target.classList.toggle("fa-compress-arrows-alt");
-            event.target.classList.toggle("fa-expand-arrows-alt");
+            event.currentTarget.closest('.card-img-container')!.classList.toggle("wrapped-content");
+            event.currentTarget.classList.toggle("fa-compress-arrows-alt");
+            event.currentTarget.classList.toggle("fa-expand-arrows-alt");
         }
 
         if ( tagName === 'I' && classList.contains('text-size-toggle-icon')) {
-            event.target.closest('.card-text-container').classList.toggle("wrapped-content");
-            event.target.classList.toggle("fa-caret-square-down");
-            event.target.classList.toggle("fa-caret-square-up");
+            event.currentTarget.closest('.card-text-container')!.classList.toggle("wrapped-content");
+            event.currentTarget.classList.toggle("fa-caret-square-down");
+            event.currentTarget.classList.toggle("fa-caret-square-up");
         }
     };
 

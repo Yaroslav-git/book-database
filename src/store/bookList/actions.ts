@@ -1,39 +1,36 @@
-export const GET_BOOK_LIST_REQUEST = 'GET_BOOK_LIST_REQUEST';
-export const GET_BOOK_LIST_SUCCESS = 'GET_BOOK_LIST_SUCCESS';
-export const GET_BOOK_LIST_FAIL = 'GET_BOOK_LIST_FAIL';
-export const REMOVE_LIST_BOOK_REQUEST = 'REMOVE_LIST_BOOK_REQUEST';
-export const REMOVE_LIST_BOOK_SUCCESS = 'REMOVE_LIST_BOOK_SUCCESS';
-export const REMOVE_LIST_BOOK_FAIL = 'REMOVE_LIST_BOOK_FAIL';
+import {Dispatch} from 'redux'
+import {RootState} from '../reducers'
+import {IApiResponse, IError, IBookListAction, BookListActionTypes} from '../interfaces'
 
 export const getBookList = () => {
 
-    return (dispatch, getState) => {
-        const state = getState();
+    return (dispatch: Dispatch<IBookListAction>, getState: () => RootState) => {
+        const state: RootState = getState();
         let requestData = {
             action: 'get_book_list',
             sessionId: state.user.sessionId
         };
 
-        dispatch( {type: GET_BOOK_LIST_REQUEST} );
+        dispatch( {type: BookListActionTypes.GET_BOOK_LIST_REQUEST} );
 
         state.api.provider(requestData).then(
-            response => {
+            (response: IApiResponse) => {
                 if ( response.status === 'success' ) {
                     dispatch({
-                        type: GET_BOOK_LIST_SUCCESS,
+                        type: BookListActionTypes.GET_BOOK_LIST_SUCCESS,
                         payload: response.data
                     });
                 }
                 else {
                     dispatch({
-                        type: GET_BOOK_LIST_FAIL,
+                        type: BookListActionTypes.GET_BOOK_LIST_FAIL,
                         payload: response.status === 'error' ? response.message : ''
                     });
                 }
             },
-            error => {
+            (error: IError) => {
                 dispatch({
-                    type: GET_BOOK_LIST_FAIL,
+                    type: BookListActionTypes.GET_BOOK_LIST_FAIL,
                     payload: error.message
                 });
             }
@@ -41,39 +38,45 @@ export const getBookList = () => {
     };
 };
 
-export const removeBook = (bookId) => {
+export const removeBook = (bookId: number) => {
 
-    return (dispatch, getState) => {
-        const state = getState();
+    return (dispatch: Dispatch<IBookListAction>, getState: () => RootState) => {
+        const state: RootState = getState();
         let requestData = {
             action: 'remove_book',
             bookId: bookId,
             sessionId: state.user.sessionId
         };
 
-        dispatch( {type: REMOVE_LIST_BOOK_REQUEST} );
+        dispatch( {type: BookListActionTypes.REMOVE_LIST_BOOK_REQUEST} );
 
         state.api.provider(requestData).then(
-            response => {
+            (response: IApiResponse) => {
                 if ( response.status === 'success' ) {
                     dispatch({
-                        type: REMOVE_LIST_BOOK_SUCCESS,
+                        type: BookListActionTypes.REMOVE_LIST_BOOK_SUCCESS,
                         payload: bookId
                     });
                 }
                 else {
                     dispatch({
-                        type: REMOVE_LIST_BOOK_FAIL,
+                        type: BookListActionTypes.REMOVE_LIST_BOOK_FAIL,
                         payload: response.status === 'error' ? response.message : ''
                     });
                 }
             },
-            error => {
+            (error: IError) => {
                 dispatch({
-                    type: REMOVE_LIST_BOOK_FAIL,
+                    type: BookListActionTypes.REMOVE_LIST_BOOK_FAIL,
                     payload: error.message
                 });
             }
         );
     };
+};
+
+export const clearActionData = (): IBookListAction => {
+    return {
+        type: BookListActionTypes.CLEAR_ACTION_DATA
+    }
 };

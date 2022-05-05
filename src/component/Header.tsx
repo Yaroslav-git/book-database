@@ -7,21 +7,21 @@ import {Link, useLocation} from 'react-router-dom';
 import '../css/Header.css';
 import {connect} from 'react-redux';
 import {logOut} from '../store/user/actions';
+import {IUser} from './interfaces'
+import {RootState} from '../store/reducers'
 
-const Header = (props) => {
+interface IHeaderProps extends IUser {
+    logOut: () => void
+}
+
+const Header: React.FC<IHeaderProps> = (props) => {
 
     /**
      * флаг exitButtonVisible нужен для отображения/скрытия кнопки "Выйти"
      * из выпадающего списка без использования JQuery в bootstrap
      */
-    let [exitButtonVisible, setExitButtonVisible] = useState(false);
-    let [exitRequest, setExitRequest] = useState(false);
+    let [exitButtonVisible, setExitButtonVisible] = useState<boolean>(false);
     let {pathname} = useLocation();
-
-    useEffect(() => {
-        if ( props.errorMessage && exitRequest )
-            alert(props.errorMessage);
-    }, [props.errorMessage]);
 
     const toggleExitButtonVisibility = () => {
         setExitButtonVisible(prevState => !prevState);
@@ -46,14 +46,13 @@ const Header = (props) => {
      */
     const handleExitButtonClick = () => {
         toggleExitButtonVisibility();
-        setExitRequest(true);
         props.logOut();
     };
 
     return (
             <header>
                 <nav className="navbar navbar-expand-md navbar-dark fixed-top bg-dark">
-                    <span className="navbar-brand" href="#">BookDataBase</span>
+                    <span className="navbar-brand">BookDataBase</span>
                     <button className="navbar-toggler" type="button" data-toggle="collapse"
                             data-target="#navbarCollapse"
                             aria-controls="navbarCollapse" aria-expanded="false"
@@ -102,5 +101,5 @@ const Header = (props) => {
     );
 };
 
-export default connect(state => state.user, {logOut})(Header);
+export default connect((state: RootState) => state.user, {logOut})(Header);
 //export default Header;

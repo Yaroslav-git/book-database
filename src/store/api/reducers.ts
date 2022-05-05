@@ -1,8 +1,10 @@
-const initialState = {
-    provider: (data) => {
+import {IApiState, IApiData} from "../interfaces";
+
+const initialState: IApiState = {
+    provider: (data: IApiData) => {
         return new Promise( (resolve, reject) => {
             fetch(
-                //api url,
+                '//api url//',
                 {
                     method: 'POST',
                     mode: 'cors',
@@ -28,4 +30,5 @@ const initialState = {
 
 };
 
-export const apiReducer = (state = initialState, action) => state;
+export const apiReducer = (state = initialState, action: string) => state;
+

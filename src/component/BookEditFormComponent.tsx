@@ -5,26 +5,35 @@
 import React, {useState, useEffect} from 'react'
 import BookCard from './BookCard'
 import '../css/BookEditForm.css'
+import {IBook} from './interfaces'
+import {string} from "prop-types";
 
-const BookEditFormComponent = (props) => {
+interface IBookCompProps {
+    book: IBook
+    submitHandler: (book: IBook) => void
+    removeHandler?: (id: number) => void
+}
 
-    let [book, setBook] = useState({
+const BookEditFormComponent: React.FC<IBookCompProps> = (props) => {
+
+    let [book, setBook] = useState<IBook>({
         titleOrig: '',
         titleRus: '',
         authorNameOrig: '',
         authorNameRus: '',
-        publicationYear: '',
+        publicationYear: null,
         coverImageLink: '',
         annotation: '',
         comment: '',
         readStatus: '',
-        assessment: ''
+        assessment: null,
+        id: 0
     });
 
     // обязательные для заполнения поля
     let requiredFields = ['titleRus','authorNameRus','publicationYear'];
     // незаполненные поля
-    let [invalidFields, setInvalidFields] = useState([]);
+    let [invalidFields, setInvalidFields] = useState<string[]>([]);
 
     useEffect( () => {
         if ( props.book )
@@ -35,11 +44,8 @@ const BookEditFormComponent = (props) => {
      * Обработчик изменения полей формы создания/изменения книги.
      * @param event
      */
-    const handleChange = (event) => {
-        let {name, type, value, checked} = event.target;
-
-        if ( name === 'assessment' )
-            value = +value;
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement> | React.ChangeEvent<HTMLTextAreaElement>) => {
+        let {name, value} = event.currentTarget;
 
         let invalidFieldIndex = invalidFields.indexOf(name);
         if ( invalidFieldIndex >= 0 ){
@@ -47,15 +53,15 @@ const BookEditFormComponent = (props) => {
             setInvalidFields(invalidFields);
         }
         
-        setBook( prevState => ({
+        setBook( (prevState: IBook) => ({
             ...prevState,
-            [name]: (type === 'checkbox' ? checked : value)
+            [name]: (name === 'assessment' ? +value : value)
         }) );
 
         if ( name === 'readStatus' && value !== 'Has been read' ) {
-            setBook( prevState => ({
+            setBook( (prevState: IBook) => ({
                 ...prevState,
-                assessment: ''
+                assessment: null
             }) );
         }
     };
@@ -67,7 +73,7 @@ const BookEditFormComponent = (props) => {
      *
      * @param event
      */
-    const handleSubmit = (event) => {
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
         let invalidFields = validateRequiredFields();
         setInvalidFields(invalidFields);
@@ -83,13 +89,13 @@ const BookEditFormComponent = (props) => {
      *
      * @returns {Array.<string>}
      */
-    const validateRequiredFields = () => {
+    const validateRequiredFields = (): string[] => {
 
-        return requiredFields.filter( name => (
+        return requiredFields.filter( (name: string) => (
              !book.hasOwnProperty(name)
-             || book[name] === ''
-             || book[name] === undefined
-             || ( name === 'publicationYear' && !Number.isInteger(+book[name]) )
+             || book[name as keyof IBook] === ''
+             || book[name as keyof IBook] === undefined
+             || ( name === 'publicationYear' && !Number.isInteger(+book[name as keyof IBook]!) )
             )
          );
     };
@@ -151,14 +157,14 @@ const BookEditFormComponent = (props) => {
                         <div className="form-row">
                             <div className="form-group col-md-6 col-lg-6">
                                 <label>Аннотация
-                                    <textarea rows="3" className="form-control" id="bookAnnotation" name="annotation"
+                                    <textarea rows={3} className="form-control" id="bookAnnotation" name="annotation"
                                               value={book.annotation ? book.annotation : ''} onChange={handleChange}
                                               placeholder="Краткое описание книги, которое дает читателю представление о произведении"/>
                                 </label>
                             </div>
                             <div className="form-group col-md-6 col-lg-6">
                                 <label>Комментарий
-                                    <textarea rows="3" className="form-control" id="userComment" name="comment"
+                                    <textarea rows={3} className="form-control" id="userComment" name="comment"
                                               value={book.comment ? book.comment : ''}
                                               onChange={handleChange}
                                               placeholder="Комментарий пользователя (читателя)"/>

@@ -5,18 +5,24 @@ import React, {useState, useEffect} from 'react';
 import {useHistory} from 'react-router-dom';
 import {connect} from 'react-redux';
 import {logIn} from '../store/user/actions';
+import {IUser, IAuthData} from './interfaces';
+import {RootState} from '../store/reducers'
 
-const Authentication = (props) => {
+interface IAuthProps extends IUser {
+    logIn: (auth: IAuthData) => void
+}
 
-    let [authData, setAuthData] = useState({login: '', password: ''});
+const Authentication: React.FC<IAuthProps> = (props) => {
+
+    let [authData, setAuthData] = useState<IAuthData>({login: '', password: ''});
     let history = useHistory();
     /**
      * loginError и passwordError - флаги нличия ошибки в значении полей "логин" и "пароль".
      * При рендере к полю с ошибкой добавляется класс is-invalid
      * authError - ошибка аутентификации, возвращаемая из бэкэнда
      */
-    let [loginError, setLoginError] = useState(false);
-    let [passwordError, setPasswordError] = useState(false);
+    let [loginError, setLoginError] = useState<boolean>(false);
+    let [passwordError, setPasswordError] = useState<boolean>(false);
 
     useEffect(() => {
         if ( props.loggedIn )
@@ -29,7 +35,7 @@ const Authentication = (props) => {
      *
      * @param event
      */
-    const handleChange = (event) => {
+    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         let {name, value} = event.target;
 
         setAuthData( prevAuthData => ({
@@ -51,7 +57,7 @@ const Authentication = (props) => {
      *
      * @param event
      */
-    const handleSubmit = (event) => {
+    const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
         event.preventDefault();
 
         setLoginError(authData.login === '');
@@ -108,4 +114,4 @@ const Authentication = (props) => {
     );
 };
 
-export default connect(state => state.user, {logIn})(Authentication);
+export default connect((state: RootState) => state.user, {logIn})(Authentication);

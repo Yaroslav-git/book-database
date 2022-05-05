@@ -1,7 +1,7 @@
 import React from 'react';
 import logo from './logo.svg'
 
-const HomePage = () => {
+const HomePage: React.FC = () => {
     return (
         <div className="home-page">
             <h1>Книжная База Данных</h1>

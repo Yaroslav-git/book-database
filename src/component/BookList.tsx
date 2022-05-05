@@ -4,14 +4,24 @@
  */
 import React, {useState, useEffect} from 'react';
 import {connect} from 'react-redux';
-import {getBookList, removeBook} from '../store/bookList/actions';
+import {getBookList, removeBook, clearActionData} from '../store/bookList/actions';
 import BookCard from './BookCard'
+import {IBook, IBookList} from './interfaces'
 
+interface IBookListProps extends IBookList {
+    getBookList: () => void
+    removeBook: (id: number) => void
+    clearActionData: () => void
+}
 
-const BookList = (props) => {
+interface IStateBookList {
+    bookList: IBookList
+}
 
-    let [bookCardList, setBookCardList] = useState([]);
-    let [alertMessage, setAlert] = useState('');
+const BookList: React.FC<IBookListProps> = (props) => {
+
+    let [bookCardList, setBookCardList] = useState<JSX.Element[]>([]);
+    let [alertMessage, setAlert] = useState<string>('');
 
     /**
      * Получение списка книг пользователя при создании компонента
@@ -24,9 +34,9 @@ const BookList = (props) => {
      * Создание массива компонентов BookCard из массива данных (списка книг) из store
      */
     useEffect(() => {
-        let list = props.list.map(book =>
+        let list: JSX.Element[] = props.list.map((book: IBook) =>
             <div key={book.id} className="col-sm-6 col-md-4 col-lg-4">
-                <BookCard data={book} removeHandler={props.removeBook} />
+                <BookCard data={book} removeHandler={removeHandler} />
             </div>
         );
         setBookCardList(list);
@@ -61,9 +71,17 @@ const BookList = (props) => {
                 if ( props.action.status === 'success' ) {
                     alert('Книга удалена');
                 }
+                props.clearActionData();
                 break;
         }
     }, [props.action.type, props.action.status, props.action.message]);
+
+    const removeHandler = (id: number) => {
+        const shouldRemove = window.confirm('Вы уверены, что хотите удалить элемент?')
+        if (shouldRemove) {
+            props.removeBook(id)
+        }
+    };
 
     /**
      * При наличии непустого оповещения - вывести его
@@ -92,14 +110,13 @@ const BookList = (props) => {
             </div>
         </div>
     );
-
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: IStateBookList) => {
     return {
         list: state.bookList.list,
         action: state.bookList.action
     };
 };
 
-export default connect(mapStateToProps, {getBookList, removeBook})(BookList);
+export default connect(mapStateToProps, {getBookList, removeBook, clearActionData})(BookList);

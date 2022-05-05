@@ -1,8 +1,7 @@
-import {LOG_IN_REQUEST, LOG_IN_SUCCESS, LOG_IN_FAIL,
-    VALIDATE_SESSION_REQUEST, VALIDATE_SESSION_SUCCESS, VALIDATE_SESSION_FAIL,
-    LOG_OUT_REQUEST, LOG_OUT_SUCCESS, LOG_OUT_FAIL} from './actions';
+import {UserActionTypes, IUserAction} from '../interfaces';
+import {IUser} from '../../component/interfaces'
 
-const initialState = {
+const initialState: IUser = {
     loggedIn: false,
     userName: '',
     sessionId: '',
@@ -13,11 +12,11 @@ const initialState = {
     }
 };
 
-export const userReducer = (state = initialState, action) => {
+export const userReducer = (state: IUser = initialState, action: IUserAction): IUser => {
 
     switch (action.type){
 
-        case LOG_IN_REQUEST:
+        case UserActionTypes.LOG_IN_REQUEST:
             return {
                 ...state,
                 action: {
@@ -26,7 +25,7 @@ export const userReducer = (state = initialState, action) => {
                     message: ''
                 }
             };
-        case LOG_IN_SUCCESS:
+        case UserActionTypes.LOG_IN_SUCCESS:
             return {
                 loggedIn: true,
                 userName: action.payload.userName,
@@ -37,7 +36,7 @@ export const userReducer = (state = initialState, action) => {
                     message: ''
                 }
             };
-        case LOG_IN_FAIL:
+        case UserActionTypes.LOG_IN_FAIL:
             return {
                 ...state,
                 loggedIn: false,
@@ -50,7 +49,7 @@ export const userReducer = (state = initialState, action) => {
                 }
             };
 
-        case VALIDATE_SESSION_REQUEST:
+        case UserActionTypes.VALIDATE_SESSION_REQUEST:
             return {
                 ...state,
                 action: {
@@ -59,7 +58,7 @@ export const userReducer = (state = initialState, action) => {
                     message: ''
                 }
             };
-        case VALIDATE_SESSION_SUCCESS:
+        case UserActionTypes.VALIDATE_SESSION_SUCCESS:
             return {
                 loggedIn: true,
                 userName: action.payload.userName,
@@ -70,7 +69,7 @@ export const userReducer = (state = initialState, action) => {
                     message: ''
                 }
             };
-        case VALIDATE_SESSION_FAIL:
+        case UserActionTypes.VALIDATE_SESSION_FAIL:
             return {
                 ...state,
                 loggedIn: false,
@@ -83,7 +82,7 @@ export const userReducer = (state = initialState, action) => {
                 }
             };
 
-        case LOG_OUT_REQUEST:
+        case UserActionTypes.LOG_OUT_REQUEST:
             return {
                 ...state,
                 action: {
@@ -92,7 +91,7 @@ export const userReducer = (state = initialState, action) => {
                     message: ''
                 }
             };
-        case LOG_OUT_SUCCESS:
+        case UserActionTypes.LOG_OUT_SUCCESS:
             return {
                 ...state,
                 loggedIn: false,
@@ -104,7 +103,7 @@ export const userReducer = (state = initialState, action) => {
                     message: ''
                 }
             };
-        case LOG_OUT_FAIL:
+        case UserActionTypes.LOG_OUT_FAIL:
             return {
                 ...state,
                 action: {

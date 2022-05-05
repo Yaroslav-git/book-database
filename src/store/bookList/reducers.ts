@@ -1,8 +1,7 @@
-import {
-    GET_BOOK_LIST_REQUEST, GET_BOOK_LIST_SUCCESS, GET_BOOK_LIST_FAIL,
-    REMOVE_LIST_BOOK_REQUEST, REMOVE_LIST_BOOK_SUCCESS, REMOVE_LIST_BOOK_FAIL } from './actions';
+import {BookListActionTypes, IBookListAction} from '../interfaces';
+import {IBookList} from "../../component/interfaces";
 
-const initialState = {
+const initialState: IBookList = {
     list: [],
     action: {
         type: '',
@@ -11,20 +10,20 @@ const initialState = {
     }
 };
 
-export const bookListReducer = (state = initialState, action) => {
+export const bookListReducer = (state: IBookList = initialState, action: IBookListAction): IBookList => {
 
     switch (action.type){
 
-        case GET_BOOK_LIST_REQUEST:
+        case BookListActionTypes.GET_BOOK_LIST_REQUEST:
             return {
-                ...state,
+                list: state.list,
                 action: {
                     type: 'get_book_list',
                     status: 'pending',
                     message: ''
                 }
             };
-        case GET_BOOK_LIST_SUCCESS:
+        case BookListActionTypes.GET_BOOK_LIST_SUCCESS:
             return {
                 list: [...action.payload],
                 action: {
@@ -33,9 +32,9 @@ export const bookListReducer = (state = initialState, action) => {
                     message: ''
                 }
             };
-        case GET_BOOK_LIST_FAIL:
+        case BookListActionTypes.GET_BOOK_LIST_FAIL:
             return {
-                ...state,
+                list: state.list,
                 action: {
                     type: 'get_book_list',
                     status: 'error',
@@ -43,16 +42,16 @@ export const bookListReducer = (state = initialState, action) => {
                 }
             };
 
-        case REMOVE_LIST_BOOK_REQUEST:
+        case BookListActionTypes.REMOVE_LIST_BOOK_REQUEST:
             return {
-                ...state,
+                list: state.list,
                 action: {
                     type: 'remove_book',
                     status: 'pending',
                     message: ''
                 }
             };
-        case REMOVE_LIST_BOOK_SUCCESS:
+        case BookListActionTypes.REMOVE_LIST_BOOK_SUCCESS:
             let newList = state.list.filter(book => (book.id !== action.payload));
             return {
                 list: newList,
@@ -62,13 +61,23 @@ export const bookListReducer = (state = initialState, action) => {
                     message: ''
                 }
             };
-        case REMOVE_LIST_BOOK_FAIL:
+        case BookListActionTypes.REMOVE_LIST_BOOK_FAIL:
             return {
-                ...state,
+                list: state.list,
                 action: {
                     type: 'remove_book',
                     status: 'error',
                     message: action.payload
+                }
+            };
+
+        case BookListActionTypes.CLEAR_ACTION_DATA:
+            return {
+                list: state.list,
+                action: {
+                    type: 'clear_action_data',
+                    status: 'success',
+                    message: ''
                 }
             };
 

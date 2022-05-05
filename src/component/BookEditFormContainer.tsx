@@ -7,11 +7,24 @@ import {useParams, useLocation, useHistory} from 'react-router-dom';
 import {connect} from 'react-redux';
 import BookEditFormComponent from './BookEditFormComponent';
 import {getBook, updateBook, createBook, clearBookData, removeBook} from '../store/bookEditForm/actions';
+import {IBookForm, IBook, IAction} from './interfaces'
 
-const BookEditForm = (props) => {
+interface IBookFormProps extends IBookForm {
+    getBook: (id: number) => void
+    updateBook: (book: IBook) => void
+    createBook: (book: IBook) => void
+    clearBookData: () => void
+    removeBook: (id: number) => void
+}
+
+interface IStateBookForm {
+    bookEditForm: IBookForm
+}
+
+const BookEditForm: React.FC<IBookFormProps> = (props) => {
 
     let history = useHistory();
-    let {bookId: paramsBookId} = useParams();
+    let {bookId: paramsBookId} = useParams<{bookId?: string}>();
     let {pathname} = useLocation();
 
     /**
@@ -21,7 +34,7 @@ const BookEditForm = (props) => {
      */
     useEffect(() => {
         if (paramsBookId !== undefined) {
-            props.getBook(paramsBookId);
+            props.getBook(+paramsBookId);
         }
         return () => props.clearBookData()
     }, [paramsBookId]);
@@ -84,7 +97,7 @@ const BookEditForm = (props) => {
      * или обновление данных уже существующей (/edit/:bookId)
      * @param bookData
      */
-    const editBook = (bookData) => {
+    const editBook = (bookData: IBook) => {
 
         if ( bookData.readStatus === '' )
             bookData.readStatus = 'To read';
@@ -117,15 +130,15 @@ const BookEditForm = (props) => {
         <BookEditFormComponent
             book={props.book}
             submitHandler={editBook}
-            removeHandler={props.book.id && props.removeBook}
+            removeHandler={props.book.id ? props.removeBook : undefined}
         />
     );
 
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state: IStateBookForm) => {
     return {
-        book: state.bookEditForm.bookData,
+        book: state.bookEditForm.book,
         action: state.bookEditForm.action
     };
 };

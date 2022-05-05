@@ -1,23 +1,19 @@
-import {
-    GET_BOOK_REQUEST, GET_BOOK_SUCCESS, GET_BOOK_FAIL, CLEAR_BOOK_DATA,
-    CREATE_BOOK_REQUEST, CREATE_BOOK_SUCCESS, CREATE_BOOK_FAIL,
-    UPDATE_BOOK_REQUEST, UPDATE_BOOK_SUCCESS, UPDATE_BOOK_FAIL,
-    REMOVE_BOOK_REQUEST, REMOVE_BOOK_SUCCESS, REMOVE_BOOK_FAIL
-} from './actions';
+import {BookEditActionTypes, IBookEditAction} from '../interfaces';
+import {IBookForm} from '../../component/interfaces'
 
-const initialState = {
-    bookData: {
-        id: undefined,
+const initialState: IBookForm = {
+    book: {
+        id: 0,
         titleOrig: '',
         titleRus: '',
         authorNameOrig: '',
         authorNameRus: '',
-        publicationYear: '',
+        publicationYear: null,
         coverImageLink: '',
         annotation: '',
         comment: '',
         readStatus: '',
-        assessment: ''
+        assessment: null
     },
     action: {
         type: '',
@@ -27,23 +23,22 @@ const initialState = {
 
 };
 
-export const bookEditFormReducer = (state = initialState, action) => {
+export const bookEditFormReducer = (state: IBookForm = initialState, action: IBookEditAction) => {
 
     switch (action.type){
 
-        case GET_BOOK_REQUEST:
+        case BookEditActionTypes.GET_BOOK_REQUEST:
             return {
-                ...state,
+                book: state.book,
                 action: {
                     type: 'get_book',
                     status: 'pending',
                     message: ''
                 }
             };
-        case GET_BOOK_SUCCESS:
+        case BookEditActionTypes.GET_BOOK_SUCCESS:
             return {
-                ...state,
-                bookData: {
+                book: {
                     ...action.payload
                 },
                 action: {
@@ -53,9 +48,9 @@ export const bookEditFormReducer = (state = initialState, action) => {
                 },
 
             };
-        case GET_BOOK_FAIL:
+        case BookEditActionTypes.GET_BOOK_FAIL:
             return {
-                ...state,
+                book: state.book,
                 action: {
                     type: 'get_book',
                     status: 'error',
@@ -63,9 +58,9 @@ export const bookEditFormReducer = (state = initialState, action) => {
                 }
             };
 
-        case CLEAR_BOOK_DATA:
+        case BookEditActionTypes.CLEAR_BOOK_DATA:
             return {
-                bookData: {},
+                book: {},
                 action: {
                     type: 'clear_book_data',
                     status: 'success',
@@ -73,20 +68,19 @@ export const bookEditFormReducer = (state = initialState, action) => {
                 }
             };
 
-        case CREATE_BOOK_REQUEST:
+        case BookEditActionTypes.CREATE_BOOK_REQUEST:
             return {
-                ...state,
+                book: state.book,
                 action: {
                     type: 'create_book',
                     status: 'pending',
                     message: ''
                 }
             };
-        case CREATE_BOOK_SUCCESS:
+        case BookEditActionTypes.CREATE_BOOK_SUCCESS:
             return {
-                ...state,
-                bookData: {
-                    ...state.bookData,
+                book: {
+                    ...state.book,
                     ...action.payload
                 },
                 action: {
@@ -95,9 +89,9 @@ export const bookEditFormReducer = (state = initialState, action) => {
                     message: ''
                 }
             };
-        case CREATE_BOOK_FAIL:
+        case BookEditActionTypes.CREATE_BOOK_FAIL:
             return {
-                ...state,
+                book: state.book,
                 action: {
                     type: 'create_book',
                     status: 'error',
@@ -105,20 +99,19 @@ export const bookEditFormReducer = (state = initialState, action) => {
                 }
             };
 
-        case UPDATE_BOOK_REQUEST:
+        case BookEditActionTypes.UPDATE_BOOK_REQUEST:
             return {
-                ...state,
+                book: state.book,
                 action: {
                     type: 'update_book',
                     status: 'pending',
                     message: ''
                 }
             };
-        case UPDATE_BOOK_SUCCESS:
+        case BookEditActionTypes.UPDATE_BOOK_SUCCESS:
             return {
-                ...state,
-                bookData: {
-                    ...state.bookData,
+                book: {
+                    ...state.book,
                     ...action.payload
                 },
                 action: {
@@ -127,9 +120,9 @@ export const bookEditFormReducer = (state = initialState, action) => {
                     message: ''
                 }
             };
-        case UPDATE_BOOK_FAIL:
+        case BookEditActionTypes.UPDATE_BOOK_FAIL:
             return {
-                ...state,
+                book: state.book,
                 action: {
                     type: 'update_book',
                     status: 'error',
@@ -137,28 +130,27 @@ export const bookEditFormReducer = (state = initialState, action) => {
                 }
             };
 
-        case REMOVE_BOOK_REQUEST:
+        case BookEditActionTypes.REMOVE_BOOK_REQUEST:
             return {
-                ...state,
+                book: state.book,
                 action: {
                     type: 'remove_book',
                     status: 'pending',
                     message: ''
                 }
             };
-        case REMOVE_BOOK_SUCCESS:
+        case BookEditActionTypes.REMOVE_BOOK_SUCCESS:
             return {
-                ...state,
-                bookData: {},
+                book: {},
                 action: {
                     type: 'remove_book',
                     status: 'success',
                     message: ''
                 }
             };
-        case REMOVE_BOOK_FAIL:
+        case BookEditActionTypes.REMOVE_BOOK_FAIL:
             return {
-                ...state,
+                book: state.book,
                 action: {
                     type: 'remove_book',
                     status: 'error',

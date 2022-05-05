@@ -6,19 +6,24 @@ import './css/index.css';
 import { Provider } from 'react-redux';
 import { createStore, applyMiddleware } from 'redux';
 import thunk from 'redux-thunk';
-import rootReducer from './store/reducers';
+import {rootReducer} from './store/reducers';
 import App from './App';
+import {IUser} from './component/interfaces'
 import * as serviceWorker from './serviceWorker';
+
+interface IRootState {
+    user: IUser
+}
 
 /**
  * По умолчанию статус входа пользователя отрицательный,
  * если в localStorage есть id сессии - добавляется в поле sessionId
  */
-let preloadedState = {
+let preloadedState: IRootState = {
     user: {
         loggedIn: false,
         userName: '',
-        sessionId: 'sessionId' in window.localStorage ? window.localStorage.getItem('sessionId') : '',
+        sessionId: 'sessionId' in window.localStorage ? (window.localStorage.getItem('sessionId') || '') : '',
         action: {
             type: '',
             status: '',

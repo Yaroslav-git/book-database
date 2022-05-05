@@ -6,15 +6,21 @@ import React, {useEffect} from 'react';
 import {Switch, Route, useHistory} from 'react-router-dom';
 import {connect} from 'react-redux';
 import './css/App.css';
-import Header from './Component/Header';
-import Footer from './Component/Footer';
-import BookEditForm from './Component/BookEditFormContainer';
-import BookList from './Component/BookList';
-import Authentication from './Component/Authentication';
-import HomePage from './Component/HomePage';
+import Header from './component/Header';
+import Footer from './component/Footer';
+import BookEditForm from './component/BookEditFormContainer';
+import BookList from './component/BookList';
+import Authentication from './component/Authentication';
+import HomePage from './component/HomePage';
 import {validateSession} from './store/user/actions';
+import {IUser} from './component/interfaces'
+import {RootState} from './store/reducers'
 
-const App = (props) => {
+interface IAppProps extends IUser {
+    validateSession: () => void
+}
+
+const App: React.FC<IAppProps> = (props) => {
 
     let history = useHistory();
 
@@ -82,6 +88,6 @@ const App = (props) => {
     )
 };
 
-export default connect(state => state.user, {validateSession})(App);
+export default connect((state: RootState) => state.user, {validateSession})(App);
 
 //export default App;
