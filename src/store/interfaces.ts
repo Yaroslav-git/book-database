@@ -5,7 +5,7 @@ export interface IApiResponse {
 }
 
 export interface IError {
-    message: string
+    message?: string
 }
 
 export interface IApiData {

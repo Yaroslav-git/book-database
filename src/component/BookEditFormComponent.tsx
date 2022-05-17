@@ -95,7 +95,8 @@ const BookEditFormComponent: React.FC<IBookCompProps> = (props) => {
              !book.hasOwnProperty(name)
              || book[name as keyof IBook] === ''
              || book[name as keyof IBook] === undefined
-             || ( name === 'publicationYear' && !Number.isInteger(+book[name as keyof IBook]!) )
+             || book[name as keyof IBook] === null
+             || ( name === 'publicationYear' && !Number.isInteger(+book['publicationYear']!) )
             )
          );
     };

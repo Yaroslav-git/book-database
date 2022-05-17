@@ -1,33 +1,24 @@
 import {IApiState, IApiData} from "../interfaces";
 
 const initialState: IApiState = {
-    provider: (data: IApiData) => {
-        return new Promise( (resolve, reject) => {
-            fetch(
-                '//api url//',
+    provider: async (data: IApiData) => {
+            let response = await fetch(
+                '//api url',
                 {
                     method: 'POST',
                     mode: 'cors',
                     credentials: 'include',
                     body: JSON.stringify(data)
                 }
-            ).then(
-                response => response.json(),
-                error => reject( new Error(error.message) )
-            ).then(
-                responseObj => {
-                    if ( responseObj.status === 'error' ) {
-                        reject(new Error(responseObj.message));
-                        //setTimeout( () => {reject(new Error(responseObj.message))}, 1000) ;
-                    }
-                    else
-                        resolve( responseObj );
-                        //setTimeout( () => {resolve( responseObj )}, 1000) ;
-                }
             );
-        });
-    }
 
+            let responseObj = await response.json();
+
+            if ( responseObj.status === 'error' )
+                throw new Error(responseObj.message);
+            else
+                return responseObj;
+    }
 };
 
 export const apiReducer = (state = initialState, action: string) => state;

@@ -1,13 +1,11 @@
 import {Dispatch} from 'redux'
 import {RootState} from '../reducers'
 import {IAuthData} from '../../component/interfaces'
-import {IApiResponse, IError, IUserAction, UserActionTypes} from '../interfaces'
-
-
+import {IApiResponse, IUserAction, UserActionTypes} from '../interfaces'
 
 export const logIn = (authData: IAuthData) => {
 
-    return (dispatch: Dispatch<IUserAction>, getState: () => RootState) => {
+    return async (dispatch: Dispatch<IUserAction>, getState: () => RootState) => {
         const state: RootState = getState();
         let requestData = {
             action: 'authentication',
@@ -17,39 +15,38 @@ export const logIn = (authData: IAuthData) => {
 
         dispatch( {type: UserActionTypes.LOG_IN_REQUEST} );
 
-        state.api.provider(requestData).then(
-            (response: IApiResponse) => {
-                if ( response.status === 'success' ) {
-                    window.localStorage.setItem('sessionId', response.data.sessionId);
+        try {
+            let response: IApiResponse = await state.api.provider(requestData);
 
-                    dispatch({
-                        type: UserActionTypes.LOG_IN_SUCCESS,
-                        payload: {
-                            userName: response.data.userName,
-                            sessionId: response.data.sessionId
-                        }
-                    });
-                }
-                else {
-                    dispatch({
-                        type: UserActionTypes.LOG_IN_FAIL,
-                        payload: response.status === 'error' ? response.message : ''
-                    });
-                }
-            },
-            (error: IError) => {
+            if ( response.status === 'success' ) {
+                window.localStorage.setItem('sessionId', response.data.sessionId);
+
                 dispatch({
-                    type: UserActionTypes.LOG_IN_FAIL,
-                    payload: error.message
+                    type: UserActionTypes.LOG_IN_SUCCESS,
+                    payload: {
+                        userName: response.data.userName,
+                        sessionId: response.data.sessionId
+                    }
                 });
             }
-        );
+            else {
+                dispatch({
+                    type: UserActionTypes.LOG_IN_FAIL,
+                    payload: response.status === 'error' ? response.message : ''
+                });
+            }
+        } catch (error: any) {
+            dispatch({
+                type: UserActionTypes.LOG_IN_FAIL,
+                payload: error.message
+            });
+        }
     };
 };
 
 export const validateSession = () => {
 
-    return (dispatch: Dispatch<IUserAction>, getState: () => RootState) => {
+    return async (dispatch: Dispatch<IUserAction>, getState: () => RootState) => {
         const state: RootState = getState();
         let requestData = {
             action: 'authentication',
@@ -66,37 +63,36 @@ export const validateSession = () => {
             return;
         }
 
-        state.api.provider(requestData).then(
-            (response: IApiResponse) => {
-                if ( response.status === 'success' ) {
-                    dispatch({
-                        type: UserActionTypes.VALIDATE_SESSION_SUCCESS,
-                        payload: {
-                            userName: response.data.userName,
-                            sessionId: response.data.sessionId
-                        }
-                    });
-                }
-                else {
-                    dispatch({
-                        type: UserActionTypes.VALIDATE_SESSION_FAIL,
-                        payload: response.status === 'error' ? response.message : ''
-                    });
-                }
-            },
-            (error: IError) => {
+        try {
+            let response: IApiResponse = await state.api.provider(requestData);
+
+            if ( response.status === 'success' ) {
                 dispatch({
-                    type: UserActionTypes.VALIDATE_SESSION_FAIL,
-                    payload: error.message
+                    type: UserActionTypes.VALIDATE_SESSION_SUCCESS,
+                    payload: {
+                        userName: response.data.userName,
+                        sessionId: response.data.sessionId
+                    }
                 });
             }
-        );
+            else {
+                dispatch({
+                    type: UserActionTypes.VALIDATE_SESSION_FAIL,
+                    payload: response.status === 'error' ? response.message : ''
+                });
+            }
+        } catch (error: any) {
+            dispatch({
+                type: UserActionTypes.VALIDATE_SESSION_FAIL,
+                payload: error.message
+            });
+        }
     };
 };
 
 export const logOut = () => {
 
-    return (dispatch: Dispatch<IUserAction>, getState: () => RootState) => {
+    return async (dispatch: Dispatch<IUserAction>, getState: () => RootState) => {
         const state: RootState = getState();
         let requestData = {
             action: 'sign_out',
@@ -112,28 +108,27 @@ export const logOut = () => {
             });
         }
 
-        state.api.provider(requestData).then(
-            (response: IApiResponse) => {
-                if ( response.status === 'success' ) {
-                    window.localStorage.removeItem('sessionId');
-                    dispatch({
-                        type: UserActionTypes.LOG_OUT_SUCCESS,
-                        payload: ''
-                    });
-                }
-                else {
-                    dispatch({
-                        type: UserActionTypes.LOG_OUT_FAIL,
-                        payload: response.status === 'error' ? response.message : ''
-                    });
-                }
-            },
-            (error: IError) => {
+        try {
+            let response: IApiResponse = await state.api.provider(requestData);
+
+            if ( response.status === 'success' ) {
+                window.localStorage.removeItem('sessionId');
                 dispatch({
-                    type: UserActionTypes.LOG_OUT_FAIL,
-                    payload: error.message
+                    type: UserActionTypes.LOG_OUT_SUCCESS,
+                    payload: ''
                 });
             }
-        );
+            else {
+                dispatch({
+                    type: UserActionTypes.LOG_OUT_FAIL,
+                    payload: response.status === 'error' ? response.message : ''
+                });
+            }
+        } catch (error: any) {
+            dispatch({
+                type: UserActionTypes.LOG_OUT_FAIL,
+                payload: error.message
+            });
+        }
     };
 };
