@@ -1,34 +1,28 @@
 import {Dispatch} from 'redux'
-import {IApiResponse, IError, BookEditActionTypes, IBookEditAction} from '../interfaces'
+import {IApiBook, IApiBookCreate, BookEditActionTypes, IBookEditAction} from '../interfaces'
 import {RootState} from '../reducers'
 import {IBook} from '../../component/interfaces'
-import {async} from "q";
 
 export const getBook = (bookId: number) => {
 
     return async (dispatch: Dispatch<IBookEditAction>, getState: () => RootState) => {
         const state: RootState = getState();
-        let requestData = {
-            action: 'get_book',
-            bookId: bookId,
-            sessionId: state.user.sessionId
-        };
 
         dispatch( {type: BookEditActionTypes.GET_BOOK_REQUEST} );
 
         try {
-            let response: IApiResponse = await state.api.provider(requestData);
+            let response: IApiBook = await state.api.provider('read', 'users/'+state.user.userId+'/books/'+bookId);
 
-            if ( response.status === 'success' ) {
+            if ( response ) {
                 dispatch({
                     type: BookEditActionTypes.GET_BOOK_SUCCESS,
-                    payload: response.data
+                    payload: response
                 });
             }
             else {
                 dispatch({
                     type: BookEditActionTypes.GET_BOOK_FAIL,
-                    payload: response.status === 'error' ? response.message : ''
+                    payload: 'get user book error'
                 });
             }
         } catch(error: any) {
@@ -50,29 +44,24 @@ export const createBook = (bookData: IBook) => {
 
     return async (dispatch: Dispatch<IBookEditAction>, getState: () => RootState) => {
         const state: RootState = getState();
-        let requestData = {
-            action: 'add_book',
-            book: bookData,
-            sessionId: state.user.sessionId
-        };
 
         dispatch( {type: BookEditActionTypes.CREATE_BOOK_REQUEST} );
 
         try {
-            let response: IApiResponse = await state.api.provider(requestData);
+            let response: IApiBookCreate = await state.api.provider('create', 'users/'+state.user.userId+'/books/', bookData);
 
-            if ( response.status === 'success' ) {
+            if ( response.bookId ) {
                 dispatch({
                     type: BookEditActionTypes.CREATE_BOOK_SUCCESS,
                     payload: {
-                        id: response.data.bookId
+                        id: response.bookId
                     }
                 });
             }
             else {
                 dispatch({
                     type: BookEditActionTypes.CREATE_BOOK_FAIL,
-                    payload: response.status === 'error' ? response.message : ''
+                    payload: 'create book error'
                 });
             }
         } catch (error: any) {
@@ -88,19 +77,13 @@ export const updateBook = (bookData: IBook) => {
 
     return async (dispatch: Dispatch<IBookEditAction>, getState: () => RootState) => {
         const state: RootState = getState();
-        let requestData = {
-            action: 'update_book',
-            book: bookData,
-            bookId: bookData.id,
-            sessionId: state.user.sessionId
-        };
 
         dispatch( {type: BookEditActionTypes.UPDATE_BOOK_REQUEST} );
 
         try {
-            let response: IApiResponse = await state.api.provider(requestData);
+            let response: string = await state.api.provider('update', 'users/'+state.user.userId+'/books/'+bookData.id, bookData);
 
-            if ( response.status === 'success' ) {
+            if ( response === 'book updated' ) {
                 dispatch({
                     type: BookEditActionTypes.UPDATE_BOOK_SUCCESS,
                     payload: bookData
@@ -109,7 +92,7 @@ export const updateBook = (bookData: IBook) => {
             else {
                 dispatch({
                     type: BookEditActionTypes.UPDATE_BOOK_FAIL,
-                    payload: response.status === 'error' ? response.message : ''
+                    payload: 'update book error'
                 });
             }
         } catch (error: any) {
@@ -125,18 +108,13 @@ export const removeBook = (bookId: number) => {
 
     return async (dispatch: Dispatch<IBookEditAction>, getState: () => RootState) => {
         const state: RootState = getState();
-        let requestData = {
-            action: 'remove_book',
-            bookId: bookId,
-            sessionId: state.user.sessionId
-        };
 
         dispatch( {type: BookEditActionTypes.REMOVE_BOOK_REQUEST} );
 
         try {
-            let response: IApiResponse = await state.api.provider(requestData);
+            let response: string = await state.api.provider('delete', 'users/'+state.user.userId+'/books/'+bookId);
 
-            if ( response.status === 'success' ) {
+            if ( response === 'book deleted' ) {
                 dispatch({
                     type: BookEditActionTypes.REMOVE_BOOK_SUCCESS
                 });
@@ -144,7 +122,7 @@ export const removeBook = (bookId: number) => {
             else {
                 dispatch({
                     type: BookEditActionTypes.REMOVE_BOOK_FAIL,
-                    payload: response.status === 'error' ? response.message : ''
+                    payload: 'delete book error'
                 });
             }
         } catch (error: any) {

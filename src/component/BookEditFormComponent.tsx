@@ -27,7 +27,7 @@ const BookEditFormComponent: React.FC<IBookCompProps> = (props) => {
         comment: '',
         readStatus: '',
         assessment: null,
-        id: 0
+        id: null
     });
 
     // обязательные для заполнения поля

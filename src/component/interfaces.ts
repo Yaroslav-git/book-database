@@ -6,8 +6,10 @@ export interface IAction {
 
 export interface IUser {
     loggedIn: boolean
+    userId?: number | null
     userName: string
-    sessionId: string
+    userLogin?: string
+    sessionId?: string
     action: IAction
 }
 
@@ -26,7 +28,7 @@ export interface IBook {
     annotation: string
     readStatus: string
     comment: string
-    id: number
+    id: number | null
     publicationYear: number | null
 }
 

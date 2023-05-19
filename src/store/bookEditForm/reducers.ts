@@ -3,7 +3,7 @@ import {IBookForm} from '../../component/interfaces'
 
 const initialState: IBookForm = {
     book: {
-        id: 0,
+        id: null,
         titleOrig: '',
         titleRus: '',
         authorNameOrig: '',

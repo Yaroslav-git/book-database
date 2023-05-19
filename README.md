@@ -23,8 +23,7 @@
 [Список книг пользователя](https://drive.google.com/file/d/1jX-vpCUVp0fNeCTxSxwiFNfT6uMEaVeL/view?usp=sharing) \
 [Форма редактирования книги](https://drive.google.com/file/d/1j_5b0LTEif_vD7Zlp9kBOGlywv0PcoK5/view?usp=sharing)
 
-
-## Getting Started with Create React App
+# Getting Started with Create React App
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 

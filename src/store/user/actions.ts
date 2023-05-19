@@ -1,40 +1,40 @@
 import {Dispatch} from 'redux'
 import {RootState} from '../reducers'
 import {IAuthData} from '../../component/interfaces'
-import {IApiResponse, IUserAction, UserActionTypes} from '../interfaces'
+import {IApiUser, IApiSession, IUserAction, UserActionTypes} from '../interfaces'
 
 export const logIn = (authData: IAuthData) => {
 
     return async (dispatch: Dispatch<IUserAction>, getState: () => RootState) => {
         const state: RootState = getState();
         let requestData = {
-            action: 'authentication',
-            login: authData.login,
+            username: authData.login,
             password: authData.password
         };
 
         dispatch( {type: UserActionTypes.LOG_IN_REQUEST} );
 
         try {
-            let response: IApiResponse = await state.api.provider(requestData);
+            let response: IApiUser = await state.api.provider('create', 'auth/login', requestData);
 
-            if ( response.status === 'success' ) {
-                window.localStorage.setItem('sessionId', response.data.sessionId);
+            if ( response['id'] && response['name'] ) {
 
                 dispatch({
                     type: UserActionTypes.LOG_IN_SUCCESS,
                     payload: {
-                        userName: response.data.userName,
-                        sessionId: response.data.sessionId
+                        userId:     response['id'],
+                        userLogin:  response['login'],
+                        userName:   response['name'],
                     }
                 });
             }
             else {
                 dispatch({
                     type: UserActionTypes.LOG_IN_FAIL,
-                    payload: response.status === 'error' ? response.message : ''
+                    payload: 'received user data incorrect'
                 });
             }
+
         } catch (error: any) {
             dispatch({
                 type: UserActionTypes.LOG_IN_FAIL,
@@ -48,39 +48,29 @@ export const validateSession = () => {
 
     return async (dispatch: Dispatch<IUserAction>, getState: () => RootState) => {
         const state: RootState = getState();
-        let requestData = {
-            action: 'authentication',
-            sessionId: state.user.sessionId
-        };
 
         dispatch( {type: UserActionTypes.VALIDATE_SESSION_REQUEST} );
 
-        if ( !state.user.sessionId ) {
-            dispatch({
-                type: UserActionTypes.VALIDATE_SESSION_FAIL,
-                payload: 'sessionId is not defined'
-            });
-            return;
-        }
-
         try {
-            let response: IApiResponse = await state.api.provider(requestData);
+            let response: IApiSession = await state.api.provider('read', 'auth/session');
 
-            if ( response.status === 'success' ) {
+            if ( response['isValid'] ) {
                 dispatch({
                     type: UserActionTypes.VALIDATE_SESSION_SUCCESS,
                     payload: {
-                        userName: response.data.userName,
-                        sessionId: response.data.sessionId
+                        userId:     response['userId'],
+                        userLogin:  response['userLogin'],
+                        userName:   response['userName'],
                     }
                 });
             }
             else {
                 dispatch({
                     type: UserActionTypes.VALIDATE_SESSION_FAIL,
-                    payload: response.status === 'error' ? response.message : ''
+                    payload: ''
                 });
             }
+
         } catch (error: any) {
             dispatch({
                 type: UserActionTypes.VALIDATE_SESSION_FAIL,
@@ -94,25 +84,14 @@ export const logOut = () => {
 
     return async (dispatch: Dispatch<IUserAction>, getState: () => RootState) => {
         const state: RootState = getState();
-        let requestData = {
-            action: 'sign_out',
-            sessionId: state.user.sessionId
-        };
 
         dispatch( {type: UserActionTypes.LOG_OUT_REQUEST} );
 
-        if ( !state.user.sessionId ) {
-            dispatch({
-                type: UserActionTypes.LOG_OUT_FAIL,
-                payload: 'sessionId is not defined'
-            });
-        }
-
         try {
-            let response: IApiResponse = await state.api.provider(requestData);
+            let response: string = await state.api.provider('create', 'auth/logout');
 
-            if ( response.status === 'success' ) {
-                window.localStorage.removeItem('sessionId');
+            if ( response ) {
+
                 dispatch({
                     type: UserActionTypes.LOG_OUT_SUCCESS,
                     payload: ''
@@ -121,14 +100,16 @@ export const logOut = () => {
             else {
                 dispatch({
                     type: UserActionTypes.LOG_OUT_FAIL,
-                    payload: response.status === 'error' ? response.message : ''
+                    payload: 'logout error'
                 });
             }
+
         } catch (error: any) {
             dispatch({
                 type: UserActionTypes.LOG_OUT_FAIL,
                 payload: error.message
             });
         }
+
     };
 };

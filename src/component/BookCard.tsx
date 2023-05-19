@@ -153,7 +153,7 @@ const BookCard: React.FC<IBookCard> = ({data:{
                             </div>
                         }
                         {
-                            removeHandler &&
+                            id && removeHandler &&
                             <div className="col-md-1">
                                 <button type="button" className="btn btn-sm btn-dark hint--top" aria-label='удалить'
                                         onClick={() => removeHandler(id)} >

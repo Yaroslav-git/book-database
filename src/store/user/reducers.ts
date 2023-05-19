@@ -3,8 +3,10 @@ import {IUser} from '../../component/interfaces'
 
 const initialState: IUser = {
     loggedIn: false,
+    userId: null,
+    userLogin: '',
     userName: '',
-    sessionId: '',
+    //sessionId: '',
     action: {
         type: '',
         status: '',
@@ -28,8 +30,10 @@ export const userReducer = (state: IUser = initialState, action: IUserAction): I
         case UserActionTypes.LOG_IN_SUCCESS:
             return {
                 loggedIn: true,
+                userId: action.payload.userId,
+                userLogin: action.payload.userLogin,
                 userName: action.payload.userName,
-                sessionId: action.payload.sessionId,
+                //sessionId: action.payload.sessionId,
                 action: {
                     type: 'log_in',
                     status: 'success',
@@ -40,8 +44,10 @@ export const userReducer = (state: IUser = initialState, action: IUserAction): I
             return {
                 ...state,
                 loggedIn: false,
+                userId: null,
+                userLogin: '',
                 userName: '',
-                sessionId: '',
+                //sessionId: '',
                 action: {
                     type: 'log_in',
                     status: 'error',
@@ -61,8 +67,10 @@ export const userReducer = (state: IUser = initialState, action: IUserAction): I
         case UserActionTypes.VALIDATE_SESSION_SUCCESS:
             return {
                 loggedIn: true,
+                userId: action.payload.userId,
+                userLogin: action.payload.userLogin,
                 userName: action.payload.userName,
-                sessionId: action.payload.sessionId,
+                //sessionId: action.payload.sessionId,
                 action: {
                     type: 'validate_session',
                     status: 'success',
@@ -73,8 +81,10 @@ export const userReducer = (state: IUser = initialState, action: IUserAction): I
             return {
                 ...state,
                 loggedIn: false,
+                userId: null,
+                userLogin: '',
                 userName: '',
-                sessionId: '',
+                //sessionId: '',
                 action: {
                     type: 'validate_session',
                     status: 'error',

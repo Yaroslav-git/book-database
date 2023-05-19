@@ -30,10 +30,8 @@ const App: React.FC<IAppProps> = (props) => {
      */
     useEffect(() => {
         if ( !props.loggedIn ) {
-            if ( 'sessionId' in window.localStorage )
-                props.validateSession();
-            else
-                history.push('/logIn');
+            props.validateSession();
+            //history.push('/logIn');
         }
     }, []);
 
@@ -46,6 +44,8 @@ const App: React.FC<IAppProps> = (props) => {
                 console.log(props.action.message);
                 if ( props.action.message !== 'authentication required' )
                     alert('Ошибка при валидации пользовательской сессии');
+                else
+                    history.push('/logIn');
             }
         }
     }, [props.action.type, props.action.status, props.action.message]);

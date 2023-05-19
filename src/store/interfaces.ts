@@ -1,21 +1,49 @@
-export interface IApiResponse {
-    status?: string
-    data?: any
-    message?: string
+export interface IApiUser {
+    id: number
+    login: string
+    name: string
+}
+
+export interface IApiSession {
+    id: number
+    login: string
+    name: string
+    isValid: boolean,
+    userId: number,
+    userLogin: string,
+    userName: string,
+    sessionId: string,
+    sessionStart: number,
+    sessionEnd: number
+}
+
+export interface IApiBook {
+    id: number
+    assessment: number | null
+    titleRus: string
+    titleOrig: string
+    coverImageLink: string
+    authorNameOrig: string
+    authorNameRus: string
+    annotation: string
+    readStatus: string
+    comment: string
+    publicationYear: number
+    insertedAt: number
+    updatedAt: number
+}
+
+export interface IApiBookCreate {
+    bookId: number
 }
 
 export interface IError {
     message?: string
 }
 
-export interface IApiData {
-    action: string
-    bookId?: number
-    sessionId?: string
-}
-
 export interface IApiState {
-    provider: (data: IApiData) => Promise<{}>
+    //provider: (requestType: string, path: string, requestData?: any) => Promise<{}>
+    provider: (requestType: string, path: string, requestData?: any) => Promise<any>
 }
 
 export interface IBookListAction {
